@@ -6,7 +6,7 @@ from google import genai
 st.set_page_config(page_title="Diễn đàn Học tập Siêu Tốc", page_icon="⚡", layout="wide")
 
 # 🔴 DÁN LINK APPS SCRIPT CỦA BRO VÀO ĐÂY:
-GSHEETS_URL = "DÁN_LINK_APPS_SCRIPT_CỦA_BRO_VÀO_ĐÂY"
+GSHEETS_URL = "https://script.google.com/macros/s/AKfycbz2JDN1eaRs_BSr1MMbjxk7KHeBBJQtB2hV4LuknJCjDgV_8Vdhw-3h63_YaRs3RD26/exec"
 
 st.title("⚡ Diễn đàn Học sinh & Hỏi đáp AI (Tốc độ cao)")
 
