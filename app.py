@@ -40,7 +40,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 🔴 DÁN LINK GOOGLE APPS SCRIPT CỦA BRO VÀO ĐÂY:
-GSHEETS_URL = "https://script.google.com/macros/s/AKfycbyk2uuF9CfLhiGA-GHypUNiblNBo9m4zQ7GoqIQIx4VZ6btS4ltnvpi0fZrfpu_JCWc/exec"
+GSHEETS_URL = "https://script.google.com/macros/library/d/1D5YtXTshK9V3CyWguTulyQfSaQZpun2NSUwctqJFE07NOoNOuZjAqDTd/1"
 # Header Diễn đàn
 st.title("🎓 Diễn đàn Học sinh & Hỏi đáp AI")
 st.caption("Nơi học sinh trao đổi bài học - Kiểm duyệt an toàn bởi Gemini AI")
