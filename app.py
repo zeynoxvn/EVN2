@@ -1,173 +1,116 @@
+
 import streamlit as st
 import requests
 from google import genai
 
-# 1. Cấu hình trang & Giao diện nâng cao
-st.set_page_config(
-    page_title="Diễn đàn Học tập THCS", 
-    page_icon="🎓", 
-    layout="wide"
-)
+# Cấu hình trang Web
+st.set_page_config(page_title="Diễn đàn Học tập", page_icon="🎓", layout="wide")
 
-# Custom CSS làm đẹp giao diện
-st.markdown("""
-    <style>
-    .main { background-color: #f8f9fa; }
-    .stCard {
-        background-color: #ffffff;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        margin-bottom: 15px;
-        border: 1px solid #e9ecef;
-    }
-    .badge-subject {
-        background-color: #e3f2fd;
-        color: #0d47a1;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 0.85rem;
-    }
-    .comment-box {
-        background-color: #f1f3f5;
-        border-left: 3px solid #228be6;
-        padding: 8px 12px;
-        border-radius: 4px;
-        margin-top: 6px;
-    }
-    </style>
-""", unsafe_allow_html=True)
+# 🔴 DÁN LINK WEBSCRIPT CỦA BRO VÀO ĐÂY:
+GSHEETS_URL = "https://script.google.com/macros/s/AKfycbxZ-TDInG9E45qk2p6rjuJz19_RipcRBlGvmFEWk6YhCWQgFhg9GGKi-hlBpHApjsZL/exec"
 
-# 🔴 DÁN LINK GOOGLE APPS SCRIPT CỦA BRO VÀO ĐÂY:
-GSHEETS_URL = "https://script.google.com/macros/s/AKfycbwGBEYfr81KO32Zip_tD07tF5daLkyWTwYZy6px8YurboD0bhbiG0NzlVQ59qW-JN-h/exec"
-# Header Diễn đàn
 st.title("🎓 Diễn đàn Học sinh & Hỏi đáp AI")
-st.caption("Nơi học sinh trao đổi bài học - Kiểm duyệt an toàn bởi Gemini AI")
+st.caption("Nơi học sinh trao đổi bài học - Kết nối Google Sheets & Gemini AI")
 
-# Sidebar Cấu hình
-with st.sidebar:
-    st.header("⚙️ Cấu hình Hệ thống")
-    api_key = st.text_input("🔑 Nhập Gemini API Key:", type="password").strip()
-    selected_model = st.selectbox("🤖 Mô hình AI:", ["gemini-2.0-flash", "gemini-2.0-flash-lite"])
-    bypass_ai = st.checkbox("🛠️ Bật chế độ Test (Tắt lọc AI)")
-    st.divider()
-    st.info("💡 **Mẹo:** Học sinh có thể chọn chủ đề theo từng thẻ môn học ở giao diện chính để dễ tìm bài viết!")
+# Sidebar
+st.sidebar.header("⚙️ Cấu hình")
+api_key = st.sidebar.text_input("🔑 Nhập Gemini API Key:", type="password").strip()
+selected_model = st.sidebar.selectbox("🤖 Mô hình AI:", ["gemini-2.0-flash", "gemini-2.0-flash-lite"])
+bypass_ai = st.sidebar.checkbox("🛠️ Bật chế độ Test (Tắt lọc AI)", value=True)
 
-# Hàm tải dữ liệu
+# Hàm lấy bài viết từ Google Sheets
 def load_posts():
+    if not GSHEETS_URL or "DÁN_LINK" in GSHEETS_URL:
+        st.warning("⚠️ Bro chưa dán link GSHEETS_URL vào dòng 9 trong code app.py!")
+        return []
     try:
         res = requests.get(GSHEETS_URL, timeout=10)
-        return res.json()
-    except Exception:
+        if res.status_code == 200:
+            try:
+                return res.json()
+            except Exception:
+                st.error("⚠️ Google Sheets trả về dữ liệu không đúng định dạng. Bro kiểm tra lại Bước 1 tạo bản Triển khai MỚI nhé!")
+                return []
+        else:
+            st.error(f"⚠️ Không thể kết nối Google Sheets. Mã lỗi: {res.status_code}")
+            return []
+    except Exception as e:
+        st.error(f"⚠️ Lỗi kết nối Google Sheets: {e}")
         return []
 
-# Khu vực Đăng bài
+# Hàm gửi bài đăng lên Google Sheets
+def send_post_to_sheets(subject, content):
+    try:
+        res = requests.post(GSHEETS_URL, json={"action": "add_post", "subject": subject, "content": content}, timeout=15)
+        if res.status_code in [200, 302]:
+            st.success("✅ Đã ghi nhận bài viết thành công!")
+            return True
+        else:
+            st.error(f"❌ Gửi bài thất bại! Mã phản hồi từ Google: {res.status_code}")
+            return False
+    except Exception as e:
+        st.error(f"❌ Lỗi khi gửi dữ liệu lên Google Sheets: {e}")
+        return False
+
+# Giao diện Đăng bài
 st.subheader("✍️ Đăng bài thảo luận mới")
 col1, col2 = st.columns([1, 2])
 
 with col1:
-    subject = st.selectbox(
-        "📚 Chọn môn học:", 
-        ["Toán học", "Ngữ văn", "Tiếng Anh", "Vật lý", "Hóa học", "Lịch sử & Địa lý", "Khác"]
-    )
+    subject = st.selectbox("📚 Chọn môn học:", ["Toán học", "Ngữ văn", "Tiếng Anh", "Vật lý", "Hóa học", "Lịch sử & Địa lý", "Khác"])
 
 with col2:
-    user_input = st.text_area("📝 Nội dung thảo luận:", placeholder="Nhập thắc mắc hoặc nội dung bài học ở đây...", height=100)
+    user_input = st.text_area("📝 Nội dung thảo luận:", placeholder="Nhập thắc mắc hoặc bài học...", height=100)
 
 if st.button("🚀 Đăng lên diễn đàn", type="primary", use_container_width=True):
     if not user_input.strip():
         st.warning("Vui lòng nhập nội dung trước khi đăng!")
     elif bypass_ai:
-        requests.post(GSHEETS_URL, json={"action": "add_post", "subject": subject, "content": user_input})
-        st.success("✅ [Chế độ Test] Bài viết đã đăng thành công!")
-        st.rerun()
+        if send_post_to_sheets(subject, user_input):
+            st.rerun()
     else:
         if not api_key:
-            st.error("Bro cần nhập Gemini API Key ở thanh bên trái trước nhé!")
+            st.error("Bro cần nhập Gemini API Key hoặc tích chọn 'Bật chế độ Test' ở thanh bên trái!")
         else:
-            with st.spinner("🤖 AI đang kiểm duyệt nội dung..."):
+            with st.spinner("🤖 Gemini AI đang kiểm duyệt nội dung..."):
                 try:
                     client = genai.Client(api_key=api_key)
-                    prompt = f"""
-                    Ban la he thong kiem duyet noi dung cho dien dan hoc sinh THCS.
-                    Phan tich van ban: "{user_input}".
-                    - Neu an toan, phu hop hoc duong: tra ve dung 1 tu: APPROVED
-                    - Neu xuc pham, toxic, vi pham: tra ve: REJECTED
-                    """
+                    prompt = f'Ban la he thong kiem duyet noi dung hoc sinh. Phan tich: "{user_input}". Neu an toan tra ve APPROVED, neu vi pham tra ve REJECTED.'
                     response = client.models.generate_content(model=selected_model, contents=prompt)
+                    
                     if "APPROVED" in response.text.strip():
-                        requests.post(GSHEETS_URL, json={"action": "add_post", "subject": subject, "content": user_input})
-                        st.success("✅ Bài viết hợp lệ và đã đăng thành công!")
-                        st.rerun()
+                        if send_post_to_sheets(subject, user_input):
+                            st.rerun()
                     else:
-                        st.error("❌ Bài viết bị từ chối do vi phạm quy chuẩn cộng đồng học đường!")
+                        st.error("❌ Bài viết bị từ chối do vi phạm quy chuẩn cộng đồng!")
                 except Exception as e:
-                    st.error(f"Lỗi kết nối API: {e}")
+                    st.error(f"Lỗi AI: {e}")
 
 st.divider()
 
-# Bảng dữ liệu bài đăng & Thẻ Tabs phân loại
+# Hiển thị bài viết
 posts = load_posts()
+st.subheader(f"📌 Danh sách bài đăng ({len(posts)})")
 
-# Thanh thống kê nhỏ
-col_stat1, col_stat2 = st.columns(2)
-col_stat1.metric("📊 Tổng số bài thảo luận", len(posts))
-col_stat2.metric("🟢 Trạng thái CSDL", "Google Sheets Online")
-
-st.subheader("📌 Dòng thời gian thảo luận")
-
-# Tạo các Tabs môn học
-tab_all, tab_toan, tab_van, tab_geog, tab_other = st.tabs(
-    ["🌐 Tất cả", "📐 Toán học", "📖 Ngữ văn", "🌍 Lịch sử & Địa lý", "📌 Môn khác"]
-)
-
-def render_post_list(post_list):
-    if not post_list:
-        st.info("Chưa có bài đăng nào trong mục này.")
-        return
-        
-    for post in post_list:
-        with st.container():
-            st.markdown(f"""
-            <div class="stCard">
-                <span class="badge-subject">📚 {post['subject']}</span>
-                <p style="font-size: 1.1rem; margin-top: 10px; color: #212529;">{post['content']}</p>
-            </div>
-            """, unsafe_allow_html=True)
+if not posts:
+    st.info("Chưa có bài đăng nào trên diễn đàn.")
+else:
+    for idx, post in enumerate(posts):
+        with st.container(border=True):
+            st.markdown(f"**[{post.get('subject', 'Khác')}]**")
+            st.write(post.get('content', ''))
             
             # Hiển thị bình luận
-            if "comments" in post and post["comments"]:
-                st.caption("💬 Phản hồi từ học sinh / giáo viên:")
-                for comment in post["comments"]:
-                    st.markdown(f'<div class="comment-box">👉 {comment}</div>', unsafe_allow_html=True)
+            if post.get('comments'):
+                st.caption("💬 Các bình luận:")
+                for c in post['comments']:
+                    st.info(f"👉 {c}")
             
             # Trả lời
-            with st.expander("💬 Viết phản hồi cho bài này"):
-                reply = st.text_input("Nội dung câu trả lời:", key=f"in_{post['id']}")
-                if st.button("Gửi bình luận", key=f"btn_{post['id']}"):
+            with st.expander("💬 Trả lời bài này"):
+                reply = st.text_input("Nhập câu trả lời:", key=f"rep_{post.get('id', idx)}")
+                if st.button("Gửi bình luận", key=f"btn_{post.get('id', idx)}"):
                     if reply.strip():
-                        requests.post(GSHEETS_URL, json={
-                            "action": "add_comment", 
-                            "post_id": post["id"], 
-                            "comment": reply.strip()
-                        })
+                        requests.post(GSHEETS_URL, json={"action": "add_comment", "post_id": post.get('id'), "comment": reply.strip()})
                         st.success("Đã gửi phản hồi!")
                         st.rerun()
-            st.write("")
-
-# Lọc bài đăng theo Tabs
-with tab_all:
-    render_post_list(posts)
-
-with tab_toan:
-    render_post_list([p for p in posts if p.get('subject') == 'Toán học'])
-
-with tab_van:
-    render_post_list([p for p in posts if p.get('subject') == 'Ngữ văn'])
-
-with tab_geog:
-    render_post_list([p for p in posts if p.get('subject') == 'Lịch sử & Địa lý'])
-
-with tab_other:
-    render_post_list([p for p in posts if p.get('subject') not in ['Toán học', 'Ngữ văn', 'Lịch sử & Địa lý']])
