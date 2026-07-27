@@ -36,7 +36,7 @@ if st.button("🚀 Đăng bài", type="primary"):
                 - Nếu chứa ngôn từ xúc phạm, chửi thề, toxic hoặc không phù hợp, trả về: REJECTED | [Lý do ngắn gọn]
                 """
                 response = client.models.generate_content(
-                    model='gemini-1.5-flash',
+                    model='gemini-2.0-flash',
                     contents=prompt
                 )
                 res_text = response.text.strip()
