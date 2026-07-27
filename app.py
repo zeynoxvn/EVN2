@@ -11,9 +11,10 @@ st.caption("Nơi học sinh trao đổi bài học - Được kiểm duyệt an 
 st.sidebar.header("⚙️ Cấu hình")
 api_key = st.sidebar.text_input("Nhập Gemini API Key:", type="password").strip()
 
+# Chỉ giữ các mô hình 2.0 chuẩn hỗ trợ SDK mới
 selected_model = st.sidebar.selectbox(
     "Chọn mô hình Gemini:", 
-    ["gemini-1.5-flash", "gemini-1.5-flash-8b", "gemini-2.0-flash"]
+    ["gemini-2.0-flash", "gemini-2.0-flash-lite"]
 )
 
 # Công tắc giải cứu khi Google API hết lượt
