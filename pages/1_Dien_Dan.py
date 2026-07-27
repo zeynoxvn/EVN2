@@ -17,7 +17,7 @@ st.divider()
 # Sidebar Cấu hình
 st.sidebar.header("⚙️ Cấu hình Hệ thống")
 api_key = st.sidebar.text_input("🔑 Nhập Gemini API Key:", type="password").strip()
-selected_model = st.sidebar.selectbox("🤖 Mô hình AI:", ["gemini-2.0-flash", "gemini-2.0-flash-lite"])
+selected_model = st.sidebar.selectbox("🤖 Mô hình AI:", ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash-lite"])
 bypass_ai = st.sidebar.checkbox("🛠️ Bật chế độ Test (Tắt AI)", value=False)
 
 if st.sidebar.button("🔄 Tải lại diễn đàn"):
