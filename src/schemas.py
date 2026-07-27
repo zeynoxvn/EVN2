@@ -1,0 +1,10 @@
+from pydantic import BaseModel, Field
+
+class ModerationResult(BaseModel):
+    label: str = Field(description="SAFE, SUSPICIOUS, hoặc VIOLATION")
+    severity: int = Field(description="Điểm vi phạm từ 0 đến 100")
+    category: str = Field(description="Loại vi phạm (vd: none, insult, hate_speech...)")
+    action: str = Field(description="Hành động: allow, review, remove, warn, ban_temp, ban_perm")
+    reason: str = Field(description="Lý do ngắn gọn")
+    excerpt: str = Field(description="Trích đoạn vi phạm (nếu có)")
+    used_ai: bool = Field(default=False, description="Đánh dấu xem có dùng AI để duyệt không")
