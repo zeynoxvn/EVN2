@@ -11,19 +11,18 @@ st.caption("Nơi học sinh trao đổi bài học - Được kiểm duyệt an 
 st.sidebar.header("⚙️ Cấu hình")
 api_key = st.sidebar.text_input("Nhập Gemini API Key:", type="password").strip()
 
-# Chỉ giữ các mô hình 2.0 chuẩn hỗ trợ SDK mới
 selected_model = st.sidebar.selectbox(
     "Chọn mô hình Gemini:", 
     ["gemini-2.0-flash", "gemini-2.0-flash-lite"]
 )
 
-# Công tắc giải cứu khi Google API hết lượt
 bypass_ai = st.sidebar.checkbox("🛠️ Bật chế độ Test (Tắt lọc AI)")
 
+# Khởi tạo danh sách bài đăng
 if "posts" not in st.session_state:
     st.session_state.posts = []
 
-st.subheader("✍️ Đăng câu hỏi / Bình luận mới")
+st.subheader("✍️ Đăng câu hỏi / Bài thảo luận mới")
 subject = st.selectbox("Chọn môn học:", ["Toán học", "Ngữ văn", "Tiếng Anh", "Vật lý", "Hóa học", "Lịch sử & Địa lý", "Khác"])
 user_input = st.text_area("Nội dung thảo luận của bạn:", placeholder="Nhập câu hỏi hoặc ý kiến bài học ở đây...")
 
@@ -31,9 +30,9 @@ if st.button("🚀 Đăng bài", type="primary"):
     if not user_input.strip():
         st.warning("Vui lòng nhập nội dung trước khi đăng!")
     elif bypass_ai:
-        # Nếu bật chế độ Test -> Cho qua luôn không gọi API
         st.success("✅ [Chế độ Test] Bài viết đã đăng thành công!")
-        st.session_state.posts.insert(0, {"subject": subject, "content": user_input})
+        # Thêm khung "comments": [] để lưu câu trả lời sau này
+        st.session_state.posts.insert(0, {"subject": subject, "content": user_input, "comments": []})
     else:
         if not api_key:
             st.error("Bro cần nhập Gemini API Key ở thanh bên trái trước nhé!")
@@ -55,7 +54,7 @@ if st.button("🚀 Đăng bài", type="primary"):
 
                     if "APPROVED" in res_text:
                         st.success("✅ Bài viết hợp lệ và đã đăng lên diễn đàn!")
-                        st.session_state.posts.insert(0, {"subject": subject, "content": user_input})
+                        st.session_state.posts.insert(0, {"subject": subject, "content": user_input, "comments": []})
                     else:
                         st.error("❌ Bài viết bị từ chối do vi phạm quy chuẩn cộng đồng!")
                 except Exception as e:
@@ -66,12 +65,33 @@ if st.button("🚀 Đăng bài", type="primary"):
                         st.error(f"Lỗi kết nối Gemini API: {err_str}")
 
 st.divider()
-st.subheader("📌 Danh sách bài đăng trên diễn đàn")
+st.subheader("📌 Danh sách bài đăng & Thảo luận")
 
 if not st.session_state.posts:
     st.info("Chưa có bài đăng nào. Hãy là người đầu tiên đặt câu hỏi!")
 else:
-    for post in st.session_state.posts:
+    # Duyệt qua từng bài đăng
+    for idx, post in enumerate(st.session_state.posts):
         with st.container(border=True):
             st.markdown(f"**[{post['subject']}]**")
             st.write(post['content'])
+            
+            # 1. Hiển thị danh sách câu trả lời đã có
+            if "comments" in post and post["comments"]:
+                st.markdown("---")
+                st.caption("💬 Các phản hồi từ bạn bè / giáo viên:")
+                for comment in post["comments"]:
+                    st.info(f"👉 {comment}")
+            
+            # 2. Khung cho người khác nhập câu trả lời
+            with st.expander("💬 Trả lời bài viết này"):
+                reply_text = st.text_input("Nhập câu trả lời của bạn:", key=f"input_{idx}")
+                if st.button("Gửi trả lời", key=f"btn_{idx}"):
+                    if reply_text.strip():
+                        if "comments" not in post:
+                            post["comments"] = []
+                        post["comments"].append(reply_text.strip())
+                        st.success("Đã gửi phản hồi thành công!")
+                        st.rerun()  # Cập nhật lại giao diện ngay lập tức
+                    else:
+                        st.warning("Vui lòng nhập nội dung trước khi gửi!")
