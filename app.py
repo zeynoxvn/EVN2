@@ -1,61 +1,48 @@
-from streamlit_autorefresh import st_autorefresh
-
-# Tự động làm mới dữ liệu sau mỗi 10.000 ms (10 giây)
-st_autorefresh(interval=10000, limit=None, key="auto_refresh_posts")
 import streamlit as st
 import requests
 from google import genai
 
 # Cấu hình trang Web
-st.set_page_config(page_title="Diễn đàn Học tập", page_icon="🎓", layout="wide")
+st.set_page_config(page_title="Diễn đàn Học tập Siêu Tốc", page_icon="⚡", layout="wide")
 
-# 🔴 DÁN LINK WEBSCRIPT CỦA BRO VÀO ĐÂY:
-GSHEETS_URL = "https://script.google.com/macros/s/AKfycbxZ-TDInG9E45qk2p6rjuJz19_RipcRBlGvmFEWk6YhCWQgFhg9GGKi-hlBpHApjsZL/exec"
+# 🔴 DÁN LINK APPS SCRIPT CỦA BRO VÀO ĐÂY:
+GSHEETS_URL = "DÁN_LINK_APPS_SCRIPT_CỦA_BRO_VÀO_ĐÂY"
 
-st.title("🎓 Diễn đàn Học sinh & Hỏi đáp AI")
-st.caption("Nơi học sinh trao đổi bài học - Kết nối Google Sheets & Gemini AI")
+st.title("⚡ Diễn đàn Học sinh & Hỏi đáp AI (Tốc độ cao)")
 
-# Sidebar
+# Sidebar Cấu hình
 st.sidebar.header("⚙️ Cấu hình")
 api_key = st.sidebar.text_input("🔑 Nhập Gemini API Key:", type="password").strip()
-selected_model = st.sidebar.selectbox("🤖 Mô hình AI:", ["gemini-2.0-flash", "gemini-2.0-flash-lite"])
+selected_model = st.sidebar.selectbox("🤖 Mô hình AI:", ["gemini-2.0-flash-lite", "gemini-2.0-flash"])
 bypass_ai = st.sidebar.checkbox("🛠️ Bật chế độ Test (Tắt lọc AI)", value=True)
 
-# Hàm lấy bài viết từ Google Sheets
-def load_posts():
-    if not GSHEETS_URL or "DÁN_LINK" in GSHEETS_URL:
-        st.warning("⚠️ Bro chưa dán link GSHEETS_URL vào dòng 9 trong code app.py!")
+if st.sidebar.button("🔄 Tải lại dữ liệu mới"):
+    st.cache_data.clear()
+    st.rerun()
+
+# 🚀 TỐI ƯU 1: Caching dữ liệu trong 5 giây (Tải web cực nhanh)
+@st.cache_data(ttl=5, show_spinner=False)
+def fetch_posts_from_sheets(url):
+    if not url or "DÁN_LINK" in url:
         return []
     try:
-        res = requests.get(GSHEETS_URL, timeout=10)
-        if res.status_code == 200:
-            try:
-                return res.json()
-            except Exception:
-                st.error("⚠️ Google Sheets trả về dữ liệu không đúng định dạng. Bro kiểm tra lại Bước 1 tạo bản Triển khai MỚI nhé!")
-                return []
-        else:
-            st.error(f"⚠️ Không thể kết nối Google Sheets. Mã lỗi: {res.status_code}")
-            return []
-    except Exception as e:
-        st.error(f"⚠️ Lỗi kết nối Google Sheets: {e}")
+        res = requests.get(url, timeout=5)
+        return res.json() if res.status_code == 200 else []
+    except Exception:
         return []
 
-# Hàm gửi bài đăng lên Google Sheets
-def send_post_to_sheets(subject, content):
+# Hàm gửi dữ liệu lên Google Sheets
+def send_to_sheets(payload):
     try:
-        res = requests.post(GSHEETS_URL, json={"action": "add_post", "subject": subject, "content": content}, timeout=15)
-        if res.status_code in [200, 302]:
-            st.success("✅ Đã ghi nhận bài viết thành công!")
-            return True
-        else:
-            st.error(f"❌ Gửi bài thất bại! Mã phản hồi từ Google: {res.status_code}")
-            return False
+        requests.post(GSHEETS_URL, json=payload, timeout=5)
+        # Xóa bộ nhớ đệm để lần sau lấy dữ liệu mới nhất
+        st.cache_data.clear()
+        return True
     except Exception as e:
-        st.error(f"❌ Lỗi khi gửi dữ liệu lên Google Sheets: {e}")
+        st.error(f"Lỗi lưu CSDL: {e}")
         return False
 
-# Giao diện Đăng bài
+# Khu vực Đăng bài
 st.subheader("✍️ Đăng bài thảo luận mới")
 col1, col2 = st.columns([1, 2])
 
@@ -63,57 +50,72 @@ with col1:
     subject = st.selectbox("📚 Chọn môn học:", ["Toán học", "Ngữ văn", "Tiếng Anh", "Vật lý", "Hóa học", "Lịch sử & Địa lý", "Khác"])
 
 with col2:
-    user_input = st.text_area("📝 Nội dung thảo luận:", placeholder="Nhập thắc mắc hoặc bài học...", height=100)
+    user_input = st.text_area("📝 Nội dung thảo luận:", placeholder="Nhập thắc mắc...", height=100)
 
-if st.button("🚀 Đăng lên diễn đàn", type="primary", use_container_width=True):
+if st.button("🚀 Đăng bài ngay", type="primary", use_container_width=True):
     if not user_input.strip():
-        st.warning("Vui lòng nhập nội dung trước khi đăng!")
-    elif bypass_ai:
-        if send_post_to_sheets(subject, user_input):
-            st.rerun()
+        st.warning("Vui lòng nhập nội dung!")
     else:
-        if not api_key:
-            st.error("Bro cần nhập Gemini API Key hoặc tích chọn 'Bật chế độ Test' ở thanh bên trái!")
+        should_post = False
+        
+        if bypass_ai:
+            should_post = True
         else:
-            with st.spinner("🤖 Gemini AI đang kiểm duyệt nội dung..."):
-                try:
-                    client = genai.Client(api_key=api_key)
-                    prompt = f'Ban la he thong kiem duyet noi dung hoc sinh. Phan tich: "{user_input}". Neu an toan tra ve APPROVED, neu vi pham tra ve REJECTED.'
-                    response = client.models.generate_content(model=selected_model, contents=prompt)
-                    
-                    if "APPROVED" in response.text.strip():
-                        if send_post_to_sheets(subject, user_input):
-                            st.rerun()
-                    else:
-                        st.error("❌ Bài viết bị từ chối do vi phạm quy chuẩn cộng đồng!")
-                except Exception as e:
-                    st.error(f"Lỗi AI: {e}")
+            if not api_key:
+                st.error("Chưa nhập API Key!")
+            else:
+                with st.spinner("⚡ AI đang duyệt siêu tốc..."):
+                    try:
+                        client = genai.Client(api_key=api_key)
+                        # Prompt cực ngắn để AI trả lời nhanh nhất
+                        res = client.models.generate_content(
+                            model=selected_model, 
+                            contents=f"Text: '{user_input}'. Is safe for school? Reply ONLY 'YES' or 'NO'."
+                        )
+                        if "YES" in res.text.upper():
+                            should_post = True
+                        else:
+                            st.error("❌ Bài viết bị từ chối do nội dung không phù hợp!")
+                    except Exception as e:
+                        st.error(f"Lỗi AI: {e}")
+
+        if should_post:
+            with st.spinner("⚡ Đang lưu bài đăng..."):
+                if send_to_sheets({"action": "add_post", "subject": subject, "content": user_input}):
+                    st.success("✅ Đã đăng thành công!")
+                    st.rerun()
 
 st.divider()
 
 # Hiển thị bài viết
-posts = load_posts()
-st.subheader(f"📌 Danh sách bài đăng ({len(posts)})")
+posts = fetch_posts_from_sheets(GSHEETS_URL)
+st.subheader(f"📌 Các bài thảo luận ({len(posts)})")
 
 if not posts:
-    st.info("Chưa có bài đăng nào trên diễn đàn.")
+    st.info("Chưa có bài đăng nào.")
 else:
     for idx, post in enumerate(posts):
         with st.container(border=True):
-            st.markdown(f"**[{post.get('subject', 'Khác')}]**")
+            st.markdown(f"**[{post.get('subject', 'Môn khác')}]**")
             st.write(post.get('content', ''))
             
             # Hiển thị bình luận
-            if post.get('comments'):
+            comments = post.get('comments', [])
+            if comments:
                 st.caption("💬 Các bình luận:")
-                for c in post['comments']:
+                for c in comments:
                     st.info(f"👉 {c}")
             
-            # Trả lời
-            with st.expander("💬 Trả lời bài này"):
-                reply = st.text_input("Nhập câu trả lời:", key=f"rep_{post.get('id', idx)}")
+            # Trả lời nhanh
+            with st.expander("💬 Viết câu trả lời"):
+                reply = st.text_input("Nội dung:", key=f"rep_{post.get('id', idx)}")
                 if st.button("Gửi bình luận", key=f"btn_{post.get('id', idx)}"):
                     if reply.strip():
-                        requests.post(GSHEETS_URL, json={"action": "add_comment", "post_id": post.get('id'), "comment": reply.strip()})
-                        st.success("Đã gửi phản hồi!")
-                        st.rerun()
+                        with st.spinner("⚡ Đang gửi..."):
+                            send_to_sheets({
+                                "action": "add_comment", 
+                                "post_id": post.get('id'), 
+                                "comment": reply.strip()
+                            })
+                            st.success("Đã trả lời!")
+                            st.rerun()
