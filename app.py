@@ -1,4 +1,7 @@
+from streamlit_autorefresh import st_autorefresh
 
+# Tự động làm mới dữ liệu sau mỗi 10.000 ms (10 giây)
+st_autorefresh(interval=10000, limit=None, key="auto_refresh_posts")
 import streamlit as st
 import requests
 from google import genai
