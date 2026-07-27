@@ -13,6 +13,7 @@ with st.sidebar:
     st.header("⚙️ Cấu hình hệ thống")
     # Ô nhập API Key để test (nhập API key của bro vào đây khi dùng)
     ui_api_key = st.text_input("🔑 Nhập Gemini API Key:", type="password")
+    ui_api_key = st.text_input("🔑 Nhập OpenAI API Key:", type="password")
     
     st.divider()
     st.subheader("👤 Giả lập Người dùng")
