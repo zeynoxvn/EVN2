@@ -1,63 +1,78 @@
-import json
-from google import genai
+import requests
 
-SYSTEM_PROMPT = """
-Bạn là hệ thống kiểm duyệt nội dung tự động. Hãy phân tích ngữ cảnh văn bản và trả về định dạng JSON chuẩn xác.
-Các loại vi phạm (category): insult, hate_speech, violence, harassment, doxxing, pornography, spam, none.
-Điểm nghiêm trọng (severity): từ 0 (hoàn toàn an toàn) đến 100 (cực kỳ nghiêm trọng).
-
-CHỈ TRẢ VỀ CHUỖI JSON, KHÔNG KÈM VĂN BẢN GIẢI THÍCH HOẶC MARKDOWN.
-Cấu trúc JSON bắt buộc:
-{
-  "severity": <số nguyên từ 0-100>,
-  "category": "<chuỗi loại vi phạm>",
-  "reason": "<lý do ngắn gọn 1 câu>",
-  "excerpt": "<trích đoạn văn bản vi phạm nếu có, nếu không có thì để rỗng ''>"
-}
-"""
-
-def analyze_with_ai(text: str, api_key: str, model_name: str = "gemini-1.5-flash-8b") -> dict:
+def analyze_with_ai(text: str, api_key: str, model_name: str = "omni-moderation-latest") -> dict:
     """
-    Gọi Google Gemini API để phân tích ngữ cảnh bài viết.
-    Tự động bắt lỗi API và bóc tách định dạng JSON trả về.
+    Gửi văn bản tới OpenAI Moderation API (Miễn phí 100%).
+    Tự động chuyển đổi kết quả OpenAI về cấu trúc JSON chuẩn của hệ thống.
     """
     if not api_key or not text.strip():
         return None
 
+    url = "https://api.openai.com/v1/moderations"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_key.strip()}"
+    }
+    payload = {
+        "model": model_name,
+        "input": text.strip()
+    }
+
     try:
-        # Khởi tạo Client Gemini với API Key người dùng cung cấp
-        client = genai.Client(api_key=api_key)
+        # Gọi API của OpenAI bằng thư viện requests có sẵn
+        response = requests.post(url, headers=headers, json=payload, timeout=10)
         
-        prompt = f"{SYSTEM_PROMPT}\n\nVăn bản cần kiểm duyệt:\n'{text}'"
-        
-        # Gọi mô hình AI
-        response = client.models.generate_content(
-            model=model_name, 
-            contents=prompt
-        )
-        
-        if not response or not response.text:
+        if response.status_code != 200:
+            print(f"[OpenAI Error] Mã lỗi: {response.status_code} - {response.text}")
             return None
 
-        # Bóc tách và dọn dẹp chuỗi JSON nếu AI vô tình trả về thêm ```json ... ```
-        raw_text = response.text.strip()
-        if raw_text.startswith("```json"):
-            raw_text = raw_text[7:]
-        elif raw_text.startswith("```"):
-            raw_text = raw_text[3:]
-            
-        if raw_text.endswith("```"):
-            raw_text = raw_text[:-3]
-            
-        raw_text = raw_text.strip()
-            
-        # Parse chuỗi thành Dictionary Python
-        result = json.loads(raw_text)
-        return result
+        data = response.json()
+        results = data.get("results", [])[0]
 
-    except json.JSONDecodeError as e:
-        print(f"[AI Client Error] Không thể parse JSON từ phản hồi AI: {e}")
-        return None
+        flagged = results.get("flagged", False)
+        category_scores = results.get("category_scores", {})
+
+        # Tìm loại vi phạm có điểm số cao nhất từ OpenAI
+        max_cat = "none"
+        max_score = 0.0
+
+        for cat, score in category_scores.items():
+            if score > max_score:
+                max_score = score
+                max_cat = cat
+
+        # Quy đổi điểm OpenAI (từ 0.0 - 1.0) sang thang điểm hệ thống (0 - 100)
+        severity = int(max_score * 100)
+
+        # Ánh xạ (Map) loại vi phạm của OpenAI sang danh mục của hệ thống
+        cat_mapping = {
+            "hate": "hate_speech",
+            "hate/threatening": "hate_speech",
+            "harassment": "harassment",
+            "harassment/threatening": "harassment",
+            "self-harm": "violence",
+            "sexual": "pornography",
+            "sexual/minors": "pornography",
+            "violence": "violence",
+            "violence/graphic": "violence"
+        }
+
+        mapped_category = cat_mapping.get(max_cat, "insult" if flagged else "none")
+
+        # Nếu OpenAI đánh dấu vi phạm (flagged) nhưng điểm hơi thấp, tự nâng lên 60 điểm để xử phạt
+        if flagged and severity < 60:
+            severity = 60
+
+        reason = f"OpenAI Moderation phát hiện vi phạm nhóm: '{max_cat}'" if flagged else "Nội dung an toàn theo đánh giá của OpenAI."
+
+        # Trả về Dictionary đúng chuẩn Pydantic Schema mà hệ thống đang dùng
+        return {
+            "severity": severity,
+            "category": mapped_category,
+            "reason": reason,
+            "excerpt": text if flagged else ""
+        }
+
     except Exception as e:
-        print(f"[AI Client Error] Lỗi gọi API Gemini: {e}")
+        print(f"[OpenAI Client Exception] Lỗi: {e}")
         return None
