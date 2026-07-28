@@ -157,15 +157,16 @@ for i, tab in enumerate(tabs):
                                             pass
                     
                     # Khung trả lời (thêm ten_tab vào key để không bị lỗi trùng lặp mã khi chuyển tab)
-                    with st.expander("💬 Viết câu trả lời"):
-                        reply = st.text_input("Nội dung bình luận:", key=f"rep_{ten_tab}_{post.get('id', idx)}")
-                        if st.button("Gửi bình luận", key=f"btn_{ten_tab}_{post.get('id', idx)}"):
-                            if reply.strip():
-                                reply_check = moderate_content(text=reply, api_key=api_key)
-                                if reply_check.action == "allow":
-                                    with st.spinner("⚡ Đang gửi..."):
-                                        send_to_sheets({"action": "add_comment", "post_id": post.get('id'), "comment": reply.strip()})
-                                        st.success("Đã trả lời!")
-                                        st.rerun()
-                                else:
-                                    st.error("Bình luận chứa từ ngữ không phù hợp!")
+                    with st.expander("📝 Viết câu trả lời"):
+                            reply = st.text_input("Viết bình luận...", key=f"cmt_{post.get('id', idx)}")
+                            if st.button("Gửi bình luận", key=f"btn_cmt_{post.get('id', idx)}"):
+                                if reply:
+                                    # Lấy tên người đang đăng nhập dán vào bình luận
+                                    nguoi_dang = st.session_state.get('fullname', 'Ẩn danh')
+                                    binhluan_kem_ten = f"👤 **{nguoi_dang}**: {reply.strip()}"
+                                    
+                                    with st.spinner("Đang gửi..."):
+                                        # Gửi cái bình luận đã có gắn tên lên Google Sheets
+                                        if send_to_sheets({"action": "add_comment", "post_id": post.get("id"), "comment": binhluan_kem_ten}):
+                                            st.toast("✅ Đã gửi câu trả lời!")
+                                            st.rerun()
