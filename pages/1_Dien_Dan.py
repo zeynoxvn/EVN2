@@ -140,39 +140,9 @@ for i, tab in enumerate(tabs):
                         st.markdown(f"**{post.get('subject', 'Không có tiêu đề')}**")
                         st.write(post.get('content', ''))
                         
-                        # 1. HIỂN THỊ CÁC BÌNH LUẬN CŨ VÀ NÚT +5Đ
+                    # 1. HIỂN THỊ CÁC BÌNH LUẬN CŨ (Đã bỏ nút chấm điểm)
                         comments = post.get('comments', [])
                         if comments:
                             st.caption("💬 Bình luận:")
-                            for c_idx, c in enumerate(comments):
-                                col_c1, col_c2 = st.columns([5, 1])
-                                with col_c1:
-                                    st.info(f"{c}")
-                                with col_c2:
-                                    if st.session_state.get("username") == "phanle":
-                                        if c.startswith("👤 **"):
-                                            try:
-                                                student_name = c.split("**")[1]
-                                                if st.button("✅ +5đ", key=f"score_{post.get('id', idx)}_{c_idx}"):
-                                                    with st.spinner("⏳..."):
-                                                        if send_to_sheets({"action": "add_score", "fullname": student_name, "points": 5}):
-                                                            st.toast(f"🎉 Đã cộng 5 điểm cho {student_name}!")
-                                            except Exception:
-                                                pass
-                        
-                        # 2. KHUNG NHẬP BÌNH LUẬN MỚI
-                        with st.expander("📝 Viết câu trả lời"):
-                            safe_key = f"{post.get('id', 'blank')}_{idx}"
-                            
-                            reply = st.text_input("Viết bình luận...", key=f"nhap_{safe_key}")
-                            if st.button("Gửi bình luận", key=f"gui_{safe_key}"):
-                                if reply:
-                                    nguoi_dang = st.session_state.get('fullname', 'Ẩn danh')
-                                    binhluan_kem_ten = f"👤 **{nguoi_dang}**: {reply.strip()}"
-                                    
-                                    with st.spinner("Đang gửi..."):
-                                        if send_to_sheets({"action": "add_comment", "post_id": post.get("id"), "comment": binhluan_kem_ten}):
-                                            st.toast("✅ Đã gửi câu trả lời!")
-                                            st.rerun()
-                        
-                        st.divider() # Dòng kẻ ngang ngăn cách các bài viết
+                            for c in comments:
+                                st.info(f"{c}")
