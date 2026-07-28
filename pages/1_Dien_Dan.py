@@ -124,14 +124,23 @@ for i, tab in enumerate(tabs):
             st.info(f"Chưa có bài đăng nào trong chuyên mục {ten_tab}.")
         else:
            # VÒNG LẶP HIỂN THỊ TỪNG BÀI VIẾT
+             # ==========================================
+                # LỌC BÀI VIẾT THEO MÔN HỌC (TRƯỜNG HỢP 2)
+                # ==========================================
+                if selected_subject == "Tất cả":
+                    filtered_posts = posts
+                else:
+                    filtered_posts = [p for p in posts if p.get('subject') == selected_subject]
+
+                # ==========================================
+                # VÒNG LẶP HIỂN THỊ TỪNG BÀI VIẾT
+                # ==========================================
                 for idx, post in enumerate(filtered_posts):
                     with st.container():
                         st.markdown(f"**{post.get('subject', 'Không có tiêu đề')}**")
                         st.write(post.get('content', ''))
                         
-                        # ==========================================
                         # 1. HIỂN THỊ CÁC BÌNH LUẬN CŨ VÀ NÚT +5Đ
-                        # ==========================================
                         comments = post.get('comments', [])
                         if comments:
                             st.caption("💬 Bình luận:")
@@ -151,9 +160,7 @@ for i, tab in enumerate(tabs):
                                             except Exception:
                                                 pass
                         
-                        # ==========================================
-                        # 2. KHUNG NHẬP BÌNH LUẬN MỚI (CĂN LỀ CHUẨN)
-                        # ==========================================
+                        # 2. KHUNG NHẬP BÌNH LUẬN MỚI
                         with st.expander("📝 Viết câu trả lời"):
                             safe_key = f"{post.get('id', 'blank')}_{idx}"
                             
