@@ -17,7 +17,8 @@ st.divider()
 
 # Sidebar Cấu hình
 st.sidebar.header("⚙️ Cấu hình Kiểm Duyệt")
-api_key = st.sidebar.text_input("🔑 Nhập OpenAI API Key (Tùy chọn):", type="password").strip()
+# Tự động lấy API Key ngầm từ két sắt bảo mật của Streamlit
+api_key = st.secrets.get("OPENAI_API_KEY", "") if "OPENAI_API_KEY" in st.secrets else ""
 bypass_ai = st.sidebar.checkbox("🛠️ Bật chế độ Test (Tắt kiểm duyệt)", value=False)
 
 if st.sidebar.button("🔄 Tải lại dữ liệu mới"):
