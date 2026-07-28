@@ -8,6 +8,12 @@ st.set_page_config(page_title="Diễn Đàn Học Sinh", page_icon="💬", layou
 # 🔴 DÁN LINK APPS SCRIPT CỦA BRO VÀO ĐÂY:
 GSHEETS_URL = "https://script.google.com/macros/s/AKfycbzaHudThpp-NN1_0EyAZqASl_uN9pcjBmW_BVMSddGI8KI0cRNYRdq6tpgrtJsyPzr_/exec"
 
+# Tự động lấy API Key của OpenAI từ két sắt Streamlit Secrets
+api_key = st.secrets.get("OPENAI_API_KEY", "") if "OPENAI_API_KEY" in st.secrets else ""
+
+# Danh sách các môn học chuẩn theo chương trình
+DANH_SACH_MON = ["Toán học", "Ngữ văn", "Tiếng Anh", "Khoa học Tự nhiên", "Lịch sử & Địa lý", "GDCD", "Khác"]
+
 st.title("💬 Diễn Đàn Thảo Luận Học Sinh")
 st.caption("Nơi trao đổi bài học an toàn - Tích hợp bộ lọc AI & Tiếng Việt đa lớp")
 
@@ -15,12 +21,8 @@ st.caption("Nơi trao đổi bài học an toàn - Tích hợp bộ lọc AI & T
 st.page_link("app.py", label="🏠 Quay về Trang Chủ", use_container_width=False)
 st.divider()
 
-# Sidebar Cấu hình
-st.sidebar.header("⚙️ Cấu hình Kiểm Duyệt")
-# Tự động lấy API Key ngầm từ két sắt bảo mật của Streamlit
-api_key = st.secrets.get("OPENAI_API_KEY", "") if "OPENAI_API_KEY" in st.secrets else ""
-bypass_ai = st.sidebar.checkbox("🛠️ Bật chế độ Test (Tắt kiểm duyệt)", value=False)
-
+# Cấu hình bypass AI (chỉ dùng khi lỗi)
+bypass_ai = st.sidebar.checkbox("🛠️ Tạm tắt kiểm duyệt (Bypass)", value=False)
 if st.sidebar.button("🔄 Tải lại dữ liệu mới"):
     st.cache_data.clear()
     st.rerun()
@@ -46,12 +48,14 @@ def send_to_sheets(payload):
         st.error(f"Lỗi lưu CSDL: {e}")
         return False
 
-# Khung Đăng bài
+# ==========================================
+# KHU VỰC ĐĂNG BÀI MỚI
+# ==========================================
 st.subheader("✍️ Đăng bài thảo luận mới")
 col1, col2 = st.columns([1, 2])
 
 with col1:
-    subject = st.selectbox("📚 Chọn môn học:", ["Toán học", "Ngữ văn", "Tiếng Anh", "Vật lý", "Hóa học", "Lịch sử & Địa lý", "Khác"])
+    subject = st.selectbox("📚 Chọn môn học:", DANH_SACH_MON)
 
 with col2:
     user_input = st.text_area("📝 Nội dung thảo luận:", placeholder="Nhập câu hỏi hoặc ý kiến của bạn...", height=120)
@@ -62,20 +66,12 @@ if st.button("🚀 Đăng bài ngay", type="primary", use_container_width=True):
     else:
         should_post = False
         
-        # Nếu bật chế độ bypass -> Cho đăng luôn
         if bypass_ai:
             should_post = True
         else:
             with st.spinner("🛡️ Hệ thống đang kiểm duyệt nội dung..."):
-                # GỌI BỘ LỌC TỪ THƯ MỤC SRC/ (Ưu tiên bộ lọc Tiếng Việt trước)
-                mod_result = moderate_content(
-                    text=user_input,
-                    api_key=api_key,
-                    strikes=0,
-                    force_ai=False
-                )
+                mod_result = moderate_content(text=user_input, api_key=api_key, strikes=0, force_ai=False)
                 
-                # Kiểm tra kết quả
                 if mod_result.action == "allow":
                     should_post = True
                 else:
@@ -84,7 +80,6 @@ if st.button("🚀 Đăng bài ngay", type="primary", use_container_width=True):
                     if mod_result.excerpt:
                         st.info(f"**Từ ngữ nghi vấn:** `{mod_result.excerpt}`")
 
-        # Thực hiện lưu nếu bài viết sạch
         if should_post:
             with st.spinner("⚡ Đang tải bài viết lên diễn đàn..."):
                 if send_to_sheets({"action": "add_post", "subject": subject, "content": user_input}):
@@ -93,34 +88,54 @@ if st.button("🚀 Đăng bài ngay", type="primary", use_container_width=True):
 
 st.divider()
 
-# Danh sách bài viết trên diễn đàn
+# ==========================================
+# KHU VỰC HIỂN THỊ BÀI VIẾT THEO TAB MÔN HỌC
+# ==========================================
 posts = fetch_posts(GSHEETS_URL)
-st.subheader(f"📌 Bài thảo luận mới nhất ({len(posts)})")
+st.subheader(f"📌 Bảng Tin Học Tập")
 
-if not posts:
-    st.info("Chưa có bài đăng nào trên diễn đàn.")
-else:
-    for idx, post in enumerate(posts):
-        with st.container(border=True):
-            st.markdown(f"**[{post.get('subject', 'Môn khác')}]**")
-            st.write(post.get('content', ''))
-            
-            comments = post.get('comments', [])
-            if comments:
-                st.caption("💬 Bình luận:")
-                for c in comments:
-                    st.info(f"👉 {c}")
-            
-            with st.expander("💬 Viết câu trả lời"):
-                reply = st.text_input("Nội dung bình luận:", key=f"rep_{post.get('id', idx)}")
-                if st.button("Gửi bình luận", key=f"btn_{post.get('id', idx)}"):
-                    if reply.strip():
-                        # Kiểm duyệt cả bình luận trước khi cho gửi
-                        reply_check = moderate_content(text=reply, api_key=api_key)
-                        if reply_check.action == "allow":
-                            with st.spinner("⚡ Đang gửi..."):
-                                send_to_sheets({"action": "add_comment", "post_id": post.get('id'), "comment": reply.strip()})
-                                st.success("Đã trả lời!")
-                                st.rerun()
-                        else:
-                            st.error("Bình luận chứa từ ngữ không phù hợp!")
+# Tạo danh sách Tab (Thêm mục "Tất cả" lên đầu tiên)
+danh_sach_tab = ["Tất cả"] + DANH_SACH_MON
+tabs = st.tabs(danh_sach_tab)
+
+# Lặp qua từng tab để hiển thị dữ liệu
+for i, tab in enumerate(tabs):
+    with tab:
+        ten_tab = danh_sach_tab[i]
+        
+        # Lọc bài viết theo môn học của Tab hiện tại
+        if ten_tab == "Tất cả":
+            bai_viet_hien_thi = posts
+        else:
+            bai_viet_hien_thi = [p for p in posts if p.get('subject', 'Khác') == ten_tab]
+        
+        # Hiển thị giao diện bài viết
+        if not bai_viet_hien_thi:
+            st.info(f"Chưa có bài đăng nào trong chuyên mục {ten_tab}.")
+        else:
+            for idx, post in enumerate(bai_viet_hien_thi):
+                with st.container(border=True):
+                    # Hiển thị môn học màu xanh cho nổi bật
+                    st.markdown(f"**Khoa Khoa / Chủ đề:** :blue[{post.get('subject', 'Khác')}]")
+                    st.write(post.get('content', ''))
+                    
+                    # Hiển thị bình luận
+                    comments = post.get('comments', [])
+                    if comments:
+                        st.caption("💬 Bình luận:")
+                        for c in comments:
+                            st.info(f"👉 {c}")
+                    
+                    # Khung trả lời (thêm ten_tab vào key để không bị lỗi trùng lặp mã khi chuyển tab)
+                    with st.expander("💬 Viết câu trả lời"):
+                        reply = st.text_input("Nội dung bình luận:", key=f"rep_{ten_tab}_{post.get('id', idx)}")
+                        if st.button("Gửi bình luận", key=f"btn_{ten_tab}_{post.get('id', idx)}"):
+                            if reply.strip():
+                                reply_check = moderate_content(text=reply, api_key=api_key)
+                                if reply_check.action == "allow":
+                                    with st.spinner("⚡ Đang gửi..."):
+                                        send_to_sheets({"action": "add_comment", "post_id": post.get('id'), "comment": reply.strip()})
+                                        st.success("Đã trả lời!")
+                                        st.rerun()
+                                else:
+                                    st.error("Bình luận chứa từ ngữ không phù hợp!")
