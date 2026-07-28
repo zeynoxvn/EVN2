@@ -4,6 +4,7 @@ import streamlit as st
 st.set_page_config(page_title="Cổng Thông Tin Học Tập", page_icon="🏫", layout="centered")
 
 st.title("🎓 Cổng Thông Tin & Diễn Đàn Học Tập THCS")
+st.link_button("🤖 Trò chuyện với Trợ lý ảo (Giải đáp 24/7)", "https://poe.com/EVNBOT", use_container_width=True)
 st.write("Chào mừng bạn đến với hệ thống hỗ trợ học tập trực tuyến tích hợp AI!")
 
 st.divider()
