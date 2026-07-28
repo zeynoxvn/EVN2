@@ -39,13 +39,23 @@ def fetch_posts(url):
         return []
 
 # Hàm gửi dữ liệu lên Google Sheets
+# Hàm gửi dữ liệu (Đã gắn thêm siêu bắt lỗi)
 def send_to_sheets(payload):
     try:
-        requests.post(GSHEETS_URL, json=payload, timeout=5)
-        st.cache_data.clear()
-        return True
+        res = requests.post(GSHEETS_URL, json=payload, timeout=10)
+        try:
+            data = res.json()
+            # Nếu Google báo lỗi, in thẳng ra web
+            if isinstance(data, dict) and data.get("status") == "error":
+                st.error(f"🚨 Báo lỗi từ máy chủ CSDL: {data.get('message')}")
+                return False
+            st.cache_data.clear()
+            return True
+        except Exception:
+            st.error("🚨 Google không trả về dữ liệu! Có thể fen quên Deploy New Version rồi!")
+            return False
     except Exception as e:
-        st.error(f"Lỗi lưu CSDL: {e}")
+        st.error(f"Lỗi mạng/kết nối: {e}")
         return False
 
 # ==========================================
