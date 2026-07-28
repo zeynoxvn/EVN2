@@ -124,7 +124,7 @@ for i, tab in enumerate(tabs):
             st.info(f"Chưa có bài đăng nào trong chuyên mục {ten_tab}.")
         else:
            # VÒNG LẶP HIỂN THỊ TỪNG BÀI VIẾT
-                for idx, post in enumerate(posts):
+                for idx, post in enumerate(filtered_posts):
                     with st.container():
                         st.markdown(f"**{post.get('subject', 'Không có tiêu đề')}**")
                         st.write(post.get('content', ''))
