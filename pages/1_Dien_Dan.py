@@ -165,13 +165,18 @@ for i, tab in enumerate(tabs):
 
                     # ĐOẠN NÀY BẮT ĐẦU THỤT LỀ THẲNG HÀNG VỚI CHỮ "if comments:" Ở TRÊN
                     with st.expander("📝 Viết câu trả lời"):
-                        reply = st.text_input("Viết bình luận...", key=f"cmt_input_{idx}")
-                        if st.button("Gửi bình luận", key=f"btn_send_cmt_{idx}"):
-                            if reply:
-                                nguoi_dang = st.session_state.get('fullname', 'Ẩn danh')
-                                binhluan_kem_ten = f"👤 **{nguoi_dang}**: {reply.strip()}"
-                                
-                                with st.spinner("Đang gửi..."):
-                                    if send_to_sheets({"action": "add_comment", "post_id": post.get("id"), "comment": binhluan_kem_ten}):
-                                        st.toast("✅ Đã gửi câu trả lời!")
-                                        st.rerun()
+                            # Chế tạo mã khóa siêu độc nhất để Streamlit không bao giờ nhầm lẫn
+                            safe_key = f"{post.get('id', 'trong')}_{idx}_{str(post.get('content', ''))[:10]}"
+                            
+                            reply = st.text_input("Viết bình luận...", key=f"nhap_{safe_key}")
+                            if st.button("Gửi bình luận", key=f"gui_{safe_key}"):
+                                if reply:
+                                    # Lấy tên người đang đăng nhập dán vào bình luận
+                                    nguoi_dang = st.session_state.get('fullname', 'Ẩn danh')
+                                    binhluan_kem_ten = f"👤 **{nguoi_dang}**: {reply.strip()}"
+                                    
+                                    with st.spinner("Đang gửi..."):
+                                        # Gửi cái bình luận đã có gắn tên lên Google Sheets
+                                        if send_to_sheets({"action": "add_comment", "post_id": post.get("id"), "comment": binhluan_kem_ten}):
+                                            st.toast("✅ Đã gửi câu trả lời!")
+                                            st.rerun()
