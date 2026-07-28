@@ -123,60 +123,49 @@ for i, tab in enumerate(tabs):
         if not bai_viet_hien_thi:
             st.info(f"Chưa có bài đăng nào trong chuyên mục {ten_tab}.")
         else:
-            for idx, post in enumerate(bai_viet_hien_thi):
-                with st.container(border=True):
-                    # Hiển thị môn học màu xanh cho nổi bật
-                    st.markdown(f"**Khoa Khoa / Chủ đề:** :blue[{post.get('subject', 'Khác')}]")
-                    st.write(post.get('content', ''))
-                    
-                    # Hiển thị bình luận
-                    comments = post.get('comments', [])
-                    if comments:
-                        st.caption("💬 Bình luận:")
-                        for c_idx, c in enumerate(comments):
-                            # Chia 2 cột: 1 bên hiện bình luận, 1 bên hiện nút chấm điểm (nếu là thầy giáo)
-                            col_c1, col_c2 = st.columns([5, 1])
-                            
-                            with col_c1:
-                                st.info(f"{c}")
-                                
-                            with col_c2:
-                                # BẢO MẬT: Chỉ hiện nút chấm điểm nếu tên đăng nhập là phanle
-                                if st.session_state.get("username") == "phanle":
-                                    # Trích xuất tên học sinh từ chuỗi bình luận
-                                    if c.startswith("👤 **"):
-                                        try:
-                                            student_name = c.split("**")[1]
-                                            # Nút bấm cộng điểm
-                                            if st.button("✅ +5đ", key=f"score_{post.get('id', idx)}_{c_idx}", help=f"Thưởng 5 điểm cho {student_name}"):
-                                                with st.spinner("⏳..."):
-                                                    # Gửi lệnh cộng điểm lên Google Sheets
-                                                    if send_to_sheets({"action": "add_score", "fullname": student_name, "points": 5}):
-                                                        st.toast(f"🎉 Đã cộng 5 điểm cho {student_name}!")
-                                        except Exception:
-                                            pass
-                    
-                    # Khung trả lời (thêm ten_tab vào key để không bị lỗi trùng lặp mã khi chuyển tab)
-                 # Các dòng code phía trên...
-                    comments = post.get('comments', [])
-                    if comments:
-                        st.caption("💬 Bình luận:")
-                        # ... (code hiện bình luận ở đây) ...
-
-                    # ĐOẠN NÀY BẮT ĐẦU THỤT LỀ THẲNG HÀNG VỚI CHỮ "if comments:" Ở TRÊN
-                    with st.expander("📝 Viết câu trả lời"):
-                            # Chế tạo mã khóa siêu độc nhất để Streamlit không bao giờ nhầm lẫn
-                            safe_key = f"{post.get('id', 'trong')}_{idx}_{str(post.get('content', ''))[:10]}"
+           # VÒNG LẶP HIỂN THỊ TỪNG BÀI VIẾT
+                for idx, post in enumerate(filtered_posts):
+                    with st.container():
+                        st.markdown(f"**{post.get('subject', 'Không có tiêu đề')}**")
+                        st.write(post.get('content', ''))
+                        
+                        # ==========================================
+                        # 1. HIỂN THỊ CÁC BÌNH LUẬN CŨ VÀ NÚT +5Đ
+                        # ==========================================
+                        comments = post.get('comments', [])
+                        if comments:
+                            st.caption("💬 Bình luận:")
+                            for c_idx, c in enumerate(comments):
+                                col_c1, col_c2 = st.columns([5, 1])
+                                with col_c1:
+                                    st.info(f"{c}")
+                                with col_c2:
+                                    if st.session_state.get("username") == "phanle":
+                                        if c.startswith("👤 **"):
+                                            try:
+                                                student_name = c.split("**")[1]
+                                                if st.button("✅ +5đ", key=f"score_{post.get('id', idx)}_{c_idx}"):
+                                                    with st.spinner("⏳..."):
+                                                        if send_to_sheets({"action": "add_score", "fullname": student_name, "points": 5}):
+                                                            st.toast(f"🎉 Đã cộng 5 điểm cho {student_name}!")
+                                            except Exception:
+                                                pass
+                        
+                        # ==========================================
+                        # 2. KHUNG NHẬP BÌNH LUẬN MỚI (CĂN LỀ CHUẨN)
+                        # ==========================================
+                        with st.expander("📝 Viết câu trả lời"):
+                            safe_key = f"{post.get('id', 'blank')}_{idx}"
                             
                             reply = st.text_input("Viết bình luận...", key=f"nhap_{safe_key}")
                             if st.button("Gửi bình luận", key=f"gui_{safe_key}"):
                                 if reply:
-                                    # Lấy tên người đang đăng nhập dán vào bình luận
                                     nguoi_dang = st.session_state.get('fullname', 'Ẩn danh')
                                     binhluan_kem_ten = f"👤 **{nguoi_dang}**: {reply.strip()}"
                                     
                                     with st.spinner("Đang gửi..."):
-                                        # Gửi cái bình luận đã có gắn tên lên Google Sheets
                                         if send_to_sheets({"action": "add_comment", "post_id": post.get("id"), "comment": binhluan_kem_ten}):
                                             st.toast("✅ Đã gửi câu trả lời!")
                                             st.rerun()
+                        
+                        st.divider() # Dòng kẻ ngang ngăn cách các bài viết
