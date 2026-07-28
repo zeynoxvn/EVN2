@@ -157,22 +157,21 @@ for i, tab in enumerate(tabs):
                                             pass
                     
                     # Khung trả lời (thêm ten_tab vào key để không bị lỗi trùng lặp mã khi chuyển tab)
-                  with st.expander("📝 Viết câu trả lời"):
-                            # Dùng idx để đảm bảo key độc nhất vô nhị
-                            reply = st.text_input("Viết bình luận...", key=f"cmt_input_{idx}")
-                            if st.button("Gửi bình luận", key=f"btn_send_cmt_{idx}"):
-                                if reply:
-                                    # Lấy tên người đang đăng nhập dán vào bình luận
-                                    nguoi_dang = st.session_state.get('fullname', 'Ẩn danh')
-                                    binhluan_kem_ten = f"👤 **{nguoi_dang}**: {reply.strip()}"
-                                    
-                                    with st.spinner("Đang gửi..."):
-                                        # Gửi cái bình luận đã có gắn tên lên Google Sheets
-                                        if send_to_sheets({"action": "add_comment", "post_id": post.get("id"), "comment": binhluan_kem_ten}):
-                                            st.toast("✅ Đã gửi câu trả lời!")
-                                            st.rerun()
-                                    with st.spinner("Đang gửi..."):
-                                        # Gửi cái bình luận đã có gắn tên lên Google Sheets
-                                        if send_to_sheets({"action": "add_comment", "post_id": post.get("id"), "comment": binhluan_kem_ten}):
-                                            st.toast("✅ Đã gửi câu trả lời!")
-                                            st.rerun()
+                 # Các dòng code phía trên...
+                    comments = post.get('comments', [])
+                    if comments:
+                        st.caption("💬 Bình luận:")
+                        # ... (code hiện bình luận ở đây) ...
+
+                    # ĐOẠN NÀY BẮT ĐẦU THỤT LỀ THẲNG HÀNG VỚI CHỮ "if comments:" Ở TRÊN
+                    with st.expander("📝 Viết câu trả lời"):
+                        reply = st.text_input("Viết bình luận...", key=f"cmt_input_{idx}")
+                        if st.button("Gửi bình luận", key=f"btn_send_cmt_{idx}"):
+                            if reply:
+                                nguoi_dang = st.session_state.get('fullname', 'Ẩn danh')
+                                binhluan_kem_ten = f"👤 **{nguoi_dang}**: {reply.strip()}"
+                                
+                                with st.spinner("Đang gửi..."):
+                                    if send_to_sheets({"action": "add_comment", "post_id": post.get("id"), "comment": binhluan_kem_ten}):
+                                        st.toast("✅ Đã gửi câu trả lời!")
+                                        st.rerun()
