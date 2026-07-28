@@ -123,8 +123,28 @@ for i, tab in enumerate(tabs):
                     comments = post.get('comments', [])
                     if comments:
                         st.caption("💬 Bình luận:")
-                        for c in comments:
-                            st.info(f"👉 {c}")
+                        for c_idx, c in enumerate(comments):
+                            # Chia 2 cột: 1 bên hiện bình luận, 1 bên hiện nút chấm điểm (nếu là thầy giáo)
+                            col_c1, col_c2 = st.columns([5, 1])
+                            
+                            with col_c1:
+                                st.info(f"{c}")
+                                
+                            with col_c2:
+                                # BẢO MẬT: Chỉ hiện nút chấm điểm nếu tên đăng nhập là phanle
+                                if st.session_state.get("username") == "phanle":
+                                    # Trích xuất tên học sinh từ chuỗi bình luận
+                                    if c.startswith("👤 **"):
+                                        try:
+                                            student_name = c.split("**")[1]
+                                            # Nút bấm cộng điểm
+                                            if st.button("✅ +5đ", key=f"score_{post.get('id', idx)}_{c_idx}", help=f"Thưởng 5 điểm cho {student_name}"):
+                                                with st.spinner("⏳..."):
+                                                    # Gửi lệnh cộng điểm lên Google Sheets
+                                                    if send_to_sheets({"action": "add_score", "fullname": student_name, "points": 5}):
+                                                        st.toast(f"🎉 Đã cộng 5 điểm cho {student_name}!")
+                                        except Exception:
+                                            pass
                     
                     # Khung trả lời (thêm ten_tab vào key để không bị lỗi trùng lặp mã khi chuyển tab)
                     with st.expander("💬 Viết câu trả lời"):
