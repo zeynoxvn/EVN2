@@ -18,10 +18,17 @@ if "logged_in" not in st.session_state:
     st.session_state["fullname"] = ""
 
 # Hàm gửi dữ liệu lên Google Sheets
+# Hàm gửi dữ liệu lên Google Sheets (Đã nâng cấp để bắt lỗi)
 def send_request(payload):
     try:
         res = requests.post(GSHEETS_URL, json=payload, timeout=10)
-        return res.json()
+        # Thử ép sang JSON, nếu lỗi thì in thẳng nội dung Google trả về ra màn hình
+        try:
+            return res.json()
+        except Exception:
+            st.error("🚨 LỖI TỪ GOOGLE: CSDL không trả về JSON. Nội dung thực tế là:")
+            st.code(res.text[:500]) # In ra 500 ký tự đầu tiên của lỗi
+            return None
     except Exception as e:
         st.error(f"Lỗi kết nối máy chủ: {e}")
         return None
