@@ -11,6 +11,7 @@ st.divider()
 st.subheader("📌 Vui lòng chọn tính năng:")
 
 # Các nút dẫn vào các trang chức năng
+st.page_link("pages/0_Tai_Khoan.py", label="👤 Đăng Nhập / Đăng Ký", use_container_width=True)
 st.page_link("pages/1_Dien_Dan.py", label="💬 Vào Diễn Đàn Thảo Luận", use_container_width=True)
 
 # 2 nút này tạm ẩn vì bro chưa làm, chừng nào làm thì xóa dấu # đi nhé
