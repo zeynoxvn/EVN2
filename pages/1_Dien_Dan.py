@@ -6,7 +6,7 @@ from src.moderation import moderate_content
 st.set_page_config(page_title="Diễn Đàn Học Sinh", page_icon="💬", layout="wide")
 
 # 🔴 DÁN LINK APPS SCRIPT CỦA BRO VÀO ĐÂY:
-GSHEETS_URL = "https://script.google.com/macros/s/AKfycbzaHudThpp-NN1_0EyAZqASl_uN9pcjBmW_BVMSddGI8KI0cRNYRdq6tpgrtJsyPzr_/exec"
+GSHEETS_URL = "https://script.google.com/macros/s/AKfycbzV0KqHng6Edeb8LupXLSY84M_v4VnenGHenVWj_d7pvzVlsq2KWwh7dN-xwOSP33oh/exec"
 
 # Tự động lấy API Key của OpenAI từ két sắt Streamlit Secrets
 api_key = st.secrets.get("OPENAI_API_KEY", "") if "OPENAI_API_KEY" in st.secrets else ""
