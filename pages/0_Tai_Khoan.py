@@ -5,7 +5,7 @@ import requests
 st.set_page_config(page_title="Tài Khoản", page_icon="👤", layout="centered")
 
 # 🔴 DÁN LINK APPS SCRIPT CỦA FEN VÀO ĐÂY:
-GSHEETS_URL = "https://script.google.com/macros/s/AKfycbyK80XS5XENjcI5IVue0zSe3AyzydotezRdrAVXKhX03s7vhoZLPJlBrpPWZ7IPaOHB/exec"
+GSHEETS_URL = "https://script.google.com/macros/s/AKfycbzV0KqHng6Edeb8LupXLSY84M_v4VnenGHenVWj_d7pvzVlsq2KWwh7dN-xwOSP33oh/exec"
 
 st.title("👤 Quản lý Tài Khoản")
 st.page_link("app.py", label="🏠 Quay về Trang Chủ", use_container_width=False)
