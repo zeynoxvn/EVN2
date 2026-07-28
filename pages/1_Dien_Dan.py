@@ -127,22 +127,34 @@ for i, tab in enumerate(tabs):
              # ==========================================
                 # LỌC BÀI VIẾT THEO MÔN HỌC (TRƯỜNG HỢP 2)
                 # ==========================================
-                if selected_subject == "Tất cả":
-                    filtered_posts = posts
-                else:
-                    filtered_posts = [p for p in posts if p.get('subject') == selected_subject]
-
+             # ==========================================
+                # VÒNG LẶP HIỂN THỊ TẤT CẢ BÀI VIẾT (Siêu mượt)
                 # ==========================================
-                # VÒNG LẶP HIỂN THỊ TỪNG BÀI VIẾT
-                # ==========================================
-                for idx, post in enumerate(filtered_posts):
+                for idx, post in enumerate(posts):
                     with st.container():
                         st.markdown(f"**{post.get('subject', 'Không có tiêu đề')}**")
                         st.write(post.get('content', ''))
                         
-                    # 1. HIỂN THỊ CÁC BÌNH LUẬN CŨ (Đã bỏ nút chấm điểm)
+                        # 1. HIỂN THỊ CÁC BÌNH LUẬN CŨ (Gọn gàng, không chấm điểm)
                         comments = post.get('comments', [])
                         if comments:
                             st.caption("💬 Bình luận:")
                             for c in comments:
                                 st.info(f"{c}")
+                        
+                        # 2. KHUNG NHẬP BÌNH LUẬN MỚI
+                        with st.expander("📝 Viết câu trả lời"):
+                            safe_key = f"{post.get('id', 'blank')}_{idx}"
+                            
+                            reply = st.text_input("Viết bình luận...", key=f"nhap_{safe_key}")
+                            if st.button("Gửi bình luận", key=f"gui_{safe_key}"):
+                                if reply:
+                                    nguoi_dang = st.session_state.get('fullname', 'Ẩn danh')
+                                    binhluan_kem_ten = f"👤 **{nguoi_dang}**: {reply.strip()}"
+                                    
+                                    with st.spinner("Đang gửi..."):
+                                        if send_to_sheets({"action": "add_comment", "post_id": post.get("id"), "comment": binhluan_kem_ten}):
+                                            st.toast("✅ Đã gửi câu trả lời!")
+                                            st.rerun()
+                        
+                        st.divider() # Dòng kẻ ngang ngăn cách các bài viết
