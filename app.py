@@ -66,4 +66,6 @@ coze_code = """
 """
 
 # Hiển thị khung chat (chiều cao 600px để nó không bị cắt cụt)
-components.html(coze_code, height=600)
+# Đưa chatbot sang thanh Sidebar bên trái
+with st.sidebar:
+    components.html(coze_code, height=600)
