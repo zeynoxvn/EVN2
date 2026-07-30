@@ -48,21 +48,20 @@ elif page == "🤖 Trợ Lý AI (Sông Ray)":
     st.markdown("---")
 
     # Mã nhúng Coze Chatbot tối giản (Tự động nhận diện khách vãng lai)
-    coze_code = """
-    <div style="width: 100%; height: 600px; display: flex; justify-content: center; align-items: center; position: relative;">
-      <script src="https://sf-cdn.coze.com/obj/unpkg-va/flow-platform/chat-app-sdk/1.2.0-beta.6/libs/oversea/index.js"></script>
-      <script>
-        new CozeWebSDK.WebChatClient({
-          config: {
-            bot_id: '7668150083120185349'
-          },
-          componentProps: {
-            title: 'Trợ lý Sông Ray'
+ coze_code = """
+    <script src="https://sf-cdn.coze.com/obj/unpkg-va/flow-platform/chat-app-sdk/1.2.0-beta.6/libs/oversea/index.js"></script>
+    <script>
+      new CozeWebSDK.WebChatClient({
+        config: { bot_id: '7668150083120185349' },
+        componentProps: { title: 'Trợ lý Sông Ray' },
+        auth: {
+          type: 'token',
+          token: 'pat_ZH2rOPbcUTQPiiKjlh7WvyjqzqUGhPddJrFgJw24ZrT5M5P61nQjzhxrj9ukYaXf',
+          onRefreshToken: function () {
+            return 'DÁN_MÃ_PAT_CỦA_FEN_VÀO_ĐÂY'
           }
-        });
-      </script>
-    </div>
+        }
+      });
+    </script>
     """
-
-    # Hiển thị chatbot trong khu vực riêng, chiều cao 650 để có không gian thở
-    components.html(coze_code, height=650)
+    
