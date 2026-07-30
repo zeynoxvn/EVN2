@@ -48,32 +48,21 @@ import streamlit.components.v1 as components
 
 
 st.markdown("---")
-st.write("### 👇 KHU VỰC CỦA TRỢ LÝ AI (Nhìn xuống góc phải bên dưới nhé)")
+st.write("### 👇 Trợ lý AI đang nằm ở góc phải bên dưới khung này:")
 
 coze_code = """
 <script src="https://sf-cdn.coze.com/obj/unpkg-va/flow-platform/chat-app-sdk/1.2.0-beta.6/libs/oversea/index.js"></script>
 <script>
   new CozeWebSDK.WebChatClient({
     config: {
-      bot_id: '7668150083120185349',
+      bot_id: '7668150083120185349'
     },
     componentProps: {
-      title: 'Trợ lý Sông Ray', 
-    },
-    auth: {
-      type: 'unauth'
+      title: 'Trợ lý Sông Ray'
     }
   });
 </script>
 """
 
-test_html = f"""
-<div style="background-color: #ffffff; height: 100vh; position: relative;">
-    {coze_code}
-</div>
-"""
-
-
-
-# Hiển thị thẳng ra luôn, không cần nút bấm
-components.html(test_html, height=500)
+# Gọi trực tiếp coze_code
+components.html(coze_code, height=600)
