@@ -11,7 +11,7 @@ st.set_page_config(
 # Hiển thị hình ảnh banner
 # GIẢ SỬ: Fen lưu bức ảnh trên GitHub với tên là 'banner_thcs_song_ray.png' 
 # và đặt nó cùng thư mục với file app.py này.
-st.image("banner_thcs_song_ray.png", use_container_width=True)
+#st.image("banner_thcs_song_ray.png", use_container_width=True)
 
 # Thêm một chút nội dung chào mừng bên dưới cho đẹp
 st.title("👋 Chào mừng đến với Diễn Đàn Học Tập THCS Sông Ray")
