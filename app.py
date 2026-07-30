@@ -67,5 +67,17 @@ coze_code = """
 
 # Hiển thị khung chat (chiều cao 600px để nó không bị cắt cụt)
 # Đưa chatbot sang thanh Sidebar bên trái
-with st.sidebar:
+# Đưa chatbot sang thanh Sidebar bên trái
+# --- TẠO NÚT BẤM BẬT/TẮT CHATBOT ---
+
+# 1. Khởi tạo bộ nhớ xem nút đã được bấm chưa (mặc định là chưa - False)
+if "show_chatbot" not in st.session_state:
+    st.session_state.show_chatbot = False
+
+# 2. Tạo một cái nút. Nếu ai đó bấm vào, nó sẽ đảo ngược trạng thái (từ Tắt thành Bật, Bật thành Tắt)
+if st.button("🤖 Trò chuyện với Trợ lý Sông Ray"):
+    st.session_state.show_chatbot = not st.session_state.show_chatbot
+
+# 3. Nếu trạng thái là Bật (True) thì mới hiển thị khung chat
+if st.session_state.show_chatbot:
     components.html(coze_code, height=600)
