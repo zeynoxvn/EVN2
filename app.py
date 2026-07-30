@@ -73,9 +73,7 @@ test_html = f"""
 </div>
 """
 
-components.html(test_html, height=500)
-</div>
-"""
+
 
 # Hiển thị thẳng ra luôn, không cần nút bấm
 components.html(test_html, height=500)
