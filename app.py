@@ -38,3 +38,32 @@ st.page_link("pages/1_Dien_Dan.py", label="💬 Vào Diễn Đàn Thảo Luận"
 # st.page_link("pages/3_Trac_Nghiem_AI.py", label="📝 Làm Trắc Nghiệm", use_container_width=True)
 
 st.page_link("pages/4_Kiem_Duyet_Admin.py", label="🛡️ Quản Trị Hệ Thống (Admin)", use_container_width=True)
+# Nhớ thêm dòng này ở tuốt trên cùng file app.py (dưới dòng import streamlit as st)
+import streamlit.components.v1 as components
+
+# ... (Các đoạn code làm giao diện trang chủ của fen nằm ở giữa đây) ...
+
+# DÁN ĐOẠN NÀY XUỐNG DƯỚI CÙNG FILE APP.PY
+coze_code = """
+<script src="https://sf-cdn.coze.com/obj/unpkg-va/flow-platform/chat-app-sdk/1.2.0-beta.6/libs/oversea/index.js"></script>
+<script>
+  new CozeWebSDK.WebChatClient({
+    config: {
+      bot_id: '7668150083120185349',
+    },
+    componentProps: {
+      title: 'Trợ lý Sông Ray', 
+    },
+    auth: {
+      type: 'token',
+      token: 'pat_ZH2rOPbcUTQPiiKjlh7WvyjqzqUGhPddJrFgJw24ZrT5M5P61nQjzhxrj9ukYaXf',
+      onRefreshToken: function () {
+        return 'pat_********'
+      }
+    }
+  });
+</script>
+"""
+
+# Hiển thị khung chat (chiều cao 600px để nó không bị cắt cụt)
+components.html(coze_code, height=600)
