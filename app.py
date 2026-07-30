@@ -44,6 +44,10 @@ import streamlit.components.v1 as components
 # ... (Các đoạn code làm giao diện trang chủ của fen nằm ở giữa đây) ...
 
 # DÁN ĐOẠN NÀY XUỐNG DƯỚI CÙNG FILE APP.PY
+# Đoạn này để đánh dấu khu vực chứa Bot cho fen dễ nhìn
+st.markdown("---")
+st.write("### 👇 KHU VỰC CỦA TRỢ LÝ AI (Nhìn xuống góc phải bên dưới nhé)")
+
 coze_code = """
 <script src="https://sf-cdn.coze.com/obj/unpkg-va/flow-platform/chat-app-sdk/1.2.0-beta.6/libs/oversea/index.js"></script>
 <script>
@@ -58,26 +62,19 @@ coze_code = """
       type: 'token',
       token: 'pat_ZH2rOPbcUTQPiiKjlh7WvyjqzqUGhPddJrFgJw24ZrT5M5P61nQjzhxrj9ukYaXf',
       onRefreshToken: function () {
-        return 'pat_********'
+        return 'DÁN_MÃ_PAT_CỦA_FEN_VÀO_ĐÂY'
       }
     }
   });
 </script>
 """
 
-# Hiển thị khung chat (chiều cao 600px để nó không bị cắt cụt)
-# Đưa chatbot sang thanh Sidebar bên trái
-# Đưa chatbot sang thanh Sidebar bên trái
-# --- TẠO NÚT BẤM BẬT/TẮT CHATBOT ---
+# Tạo một cái khung màu trắng để dễ tìm bong bóng chat
+test_html = f"""
+<div style="background-color: #ffffff; height: 100vh; position: relative;">
+    {coze_code}
+</div>
+"""
 
-# 1. Khởi tạo bộ nhớ xem nút đã được bấm chưa (mặc định là chưa - False)
-if "show_chatbot" not in st.session_state:
-    st.session_state.show_chatbot = False
-
-# 2. Tạo một cái nút. Nếu ai đó bấm vào, nó sẽ đảo ngược trạng thái (từ Tắt thành Bật, Bật thành Tắt)
-if st.button("🤖 Trò chuyện với Trợ lý Sông Ray"):
-    st.session_state.show_chatbot = not st.session_state.show_chatbot
-
-# 3. Nếu trạng thái là Bật (True) thì mới hiển thị khung chat
-if st.session_state.show_chatbot:
-    components.html(coze_code, height=600)
+# Hiển thị thẳng ra luôn, không cần nút bấm
+components.html(test_html, height=500)
