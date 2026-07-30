@@ -22,7 +22,7 @@ coze_code = """
       // Dùng window.onload để đảm bảo web tải xong khung mới gọi Bot
       window.onload = function() {
           new CozeWebSDK.WebChatClient({
-            config: { bot_id: '7668150083120185349' },
+            config: { bot_id: '7668240884051509301' },
             componentProps: { title: 'P1f' },
             auth: {
               type: 'token',
