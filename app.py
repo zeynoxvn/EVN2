@@ -1,68 +1,68 @@
 import streamlit as st
-import streamlit as st
-
-# Thiết lập cấu hình trang (Tùy chọn, để tab trình duyệt trông chuyên nghiệp hơn)
-st.set_page_config(
-    page_title="Trang Chủ - THCS Sông Ray EVN", # Tiêu đề tab trình duyệt
-    page_icon="🏫",                             # Biểu tượng tab trình duyệt
-    layout="wide"                              # Chế độ hiển thị rộng (Tùy chọn)
-)
-
-# Hiển thị hình ảnh banner
-# GIẢ SỬ: Fen lưu bức ảnh trên GitHub với tên là 'banner_thcs_song_ray.png' 
-# và đặt nó cùng thư mục với file app.py này.
-#st.image("banner_thcs_song_ray.png", use_container_width=True)
-
-# Thêm một chút nội dung chào mừng bên dưới cho đẹp
-st.title("👋 Chào mừng đến với Diễn Đàn Học Tập THCS Sông Ray")
-st.write("Dự án được phát triển bởi **Phan Lê Dũng** và **Bùi Khang An** (EVN).")
-st.markdown("---")
-st.write("Nơi trao đổi kiến thức và giải đáp thắc mắc về môn Địa lý và các môn học khác.")
-# Cấu hình giao diện Trang chủ
-st.set_page_config(page_title="Cổng Thông Tin Học Tập", page_icon="🏫", layout="centered")
-
-st.title("🎓 Cổng Thông Tin & Diễn Đàn Học Tập THCS")
-
-st.write("Chào mừng bạn đến với hệ thống hỗ trợ học tập trực tuyến tích hợp AI!")
-
-st.divider()
-
-st.subheader("📌 Vui lòng chọn tính năng:")
-
-# Các nút dẫn vào các trang chức năng
-st.page_link("pages/0_Tai_Khoan.py", label="👤 Đăng Nhập / Đăng Ký", use_container_width=True)
-st.page_link("pages/1_Dien_Dan.py", label="💬 Vào Diễn Đàn Thảo Luận", use_container_width=True)
-
-# 2 nút này tạm ẩn vì bro chưa làm, chừng nào làm thì xóa dấu # đi nhé
-# st.page_link("pages/2_Bang_Xep_Hang.py", label="🏆 Xem Bảng Xếp Hạng", use_container_width=True)
-# st.page_link("pages/3_Trac_Nghiem_AI.py", label="📝 Làm Trắc Nghiệm", use_container_width=True)
-
-st.page_link("pages/4_Kiem_Duyet_Admin.py", label="🛡️ Quản Trị Hệ Thống (Admin)", use_container_width=True)
-# Nhớ thêm dòng này ở tuốt trên cùng file app.py (dưới dòng import streamlit as st)
 import streamlit.components.v1 as components
 
-# ... (Các đoạn code làm giao diện trang chủ của fen nằm ở giữa đây) ...
+st.set_page_config(
+    page_title="Cổng Thông Tin THCS Sông Ray",
+    page_icon="🎓",
+    layout="wide"
+)
 
-# DÁN ĐOẠN NÀY XUỐNG DƯỚI CÙNG FILE APP.PY
-# Đoạn này để đánh dấu khu vực chứa Bot cho fen dễ nhìn
+st.sidebar.title("📌 MENU CHÍNH")
+page = st.sidebar.radio(
+    "Vui lòng chọn tính năng:",
+    [
+        "🏠 Trang Chủ", 
+        "🔑 Đăng Nhập / Đăng Ký", 
+        "💬 Diễn Đàn Thảo Luận", 
+        "⚙️ Quản Trị Hệ Thống (Admin)",
+        "🤖 Trợ Lý AI (Sông Ray)"
+    ]
+)
 
+if page == "🏠 Trang Chủ":
+    st.title("🎓 Cổng Thông Tin & Diễn Đàn Học Tập THCS")
+    st.write("Chào mừng bạn đến với hệ thống hỗ trợ học tập trực tuyến tích hợp AI!")
+    st.info("Nơi trao đổi kiến thức và giải đáp thắc mắc về môn Địa lý và các môn học khác.")
+    
+    # Bọc lệnh tải ảnh trong khối try-except để web không bị sập nếu ảnh bị lỗi định dạng
+    try:
+        st.image("banner_thcs_song_ray.png", use_container_width=True)
+    except Exception:
+        st.warning("⚠️ Không thể tải ảnh Banner (Định dạng ảnh chưa chuẩn).")
 
-st.markdown("---")
-st.write("### 👇 Trợ lý AI đang nằm ở góc phải bên dưới khung này:")
+elif page == "🔑 Đăng Nhập / Đăng Ký":
+    st.title("🔑 Đăng Nhập / Đăng Ký Tài Khoản")
+    st.write("Tính năng đăng nhập dành cho học sinh và giáo viên (Đang phát triển).")
 
-coze_code = """
-<script src="https://sf-cdn.coze.com/obj/unpkg-va/flow-platform/chat-app-sdk/1.2.0-beta.6/libs/oversea/index.js"></script>
-<script>
-  new CozeWebSDK.WebChatClient({
-    config: {
-      bot_id: '7668150083120185349'
-    },
-    componentProps: {
-      title: 'Trợ lý Sông Ray'
-    }
-  });
-</script>
-"""
+elif page == "💬 Diễn Đàn Thảo Luận":
+    st.title("💬 Diễn Đàn Thảo Luận Học Tập")
+    st.write("Nơi học sinh đặt câu hỏi và thảo luận bài học (Đang phát triển).")
 
-# Gọi trực tiếp coze_code
-components.html(coze_code, height=600)
+elif page == "⚙️ Quản Trị Hệ Thống (Admin)":
+    st.title("⚙️ Quản Trị Hệ Thống")
+    st.write("Khu vực dành riêng cho Quản trị viên.")
+
+elif page == "🤖 Trợ Lý AI (Sông Ray)":
+    st.title("🤖 Trợ Lý AI Học Tập - THCS Sông Ray")
+    st.caption("Trợ lý AI sẵn sàng giải đáp mọi thắc mắc học tập của bạn 24/7.")
+    st.markdown("---")
+
+    # Mã nhúng Coze Chatbot tối giản (Tự động nhận diện khách vãng lai)
+    coze_code = """
+    <div style="width: 100%; height: 600px; display: flex; justify-content: center; align-items: center; position: relative;">
+      <script src="https://sf-cdn.coze.com/obj/unpkg-va/flow-platform/chat-app-sdk/1.2.0-beta.6/libs/oversea/index.js"></script>
+      <script>
+        new CozeWebSDK.WebChatClient({
+          config: {
+            bot_id: '7668150083120185349'
+          },
+          componentProps: {
+            title: 'Trợ lý Sông Ray'
+          }
+        });
+      </script>
+    </div>
+    """
+
+    # Hiển thị chatbot trong khu vực riêng, chiều cao 650 để có không gian thở
+    components.html(coze_code, height=650)
