@@ -1,5 +1,23 @@
 import streamlit as st
+import streamlit as st
 
+# Thiết lập cấu hình trang (Tùy chọn, để tab trình duyệt trông chuyên nghiệp hơn)
+st.set_page_config(
+    page_title="Trang Chủ - THCS Sông Ray EVN", # Tiêu đề tab trình duyệt
+    page_icon="🏫",                             # Biểu tượng tab trình duyệt
+    layout="wide"                              # Chế độ hiển thị rộng (Tùy chọn)
+)
+
+# Hiển thị hình ảnh banner
+# GIẢ SỬ: Fen lưu bức ảnh trên GitHub với tên là 'banner_thcs_song_ray.png' 
+# và đặt nó cùng thư mục với file app.py này.
+st.image("banner_thcs_song_ray.png", use_container_width=True)
+
+# Thêm một chút nội dung chào mừng bên dưới cho đẹp
+st.title("👋 Chào mừng đến với Diễn Đàn Học Tập THCS Sông Ray")
+st.write("Dự án được phát triển bởi **Phan Lê Dũng** và **Bùi Khang An** (EVN).")
+st.markdown("---")
+st.write("Nơi trao đổi kiến thức và giải đáp thắc mắc về môn Địa lý và các môn học khác.")
 # Cấu hình giao diện Trang chủ
 st.set_page_config(page_title="Cổng Thông Tin Học Tập", page_icon="🏫", layout="centered")
 
