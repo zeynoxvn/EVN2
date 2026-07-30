@@ -45,6 +45,8 @@ import streamlit.components.v1 as components
 
 # DÁN ĐOẠN NÀY XUỐNG DƯỚI CÙNG FILE APP.PY
 # Đoạn này để đánh dấu khu vực chứa Bot cho fen dễ nhìn
+
+
 st.markdown("---")
 st.write("### 👇 KHU VỰC CỦA TRỢ LÝ AI (Nhìn xuống góc phải bên dưới nhé)")
 
@@ -59,20 +61,19 @@ coze_code = """
       title: 'Trợ lý Sông Ray', 
     },
     auth: {
-      type: 'token',
-      token: 'pat_ZH2rOPbcUTQPiiKjlh7WvyjqzqUGhPddJrFgJw24ZrT5M5P61nQjzhxrj9ukYaXf',
-      onRefreshToken: function () {
-        return 'DÁN_MÃ_PAT_CỦA_FEN_VÀO_ĐÂY'
-      }
+      type: 'unauth'
     }
   });
 </script>
 """
 
-# Tạo một cái khung màu trắng để dễ tìm bong bóng chat
 test_html = f"""
 <div style="background-color: #ffffff; height: 100vh; position: relative;">
     {coze_code}
+</div>
+"""
+
+components.html(test_html, height=500)
 </div>
 """
 
