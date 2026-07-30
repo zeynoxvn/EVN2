@@ -12,20 +12,30 @@ st.subheader("👇 KHU VỰC CỦA TRỢ LÝ AI (Nhìn xuống góc dưới bên
 
 # Code nhúng Coze chatbot bản quốc tế (bắt buộc dùng Token)
 coze_code = """
-<script src="https://sf-cdn.coze.com/obj/unpkg-va/flow-platform/chat-app-sdk/1.2.0-beta.6/libs/oversea/index.js"></script>
-<script>
-  new CozeWebSDK.WebChatClient({
-    config: { bot_id: '7668150083120185349' },
-    componentProps: { title: 'Trợ lý Sông Ray' },
-    auth: {
-      type: 'token',
-      token: 'pat_ukXKmpWoqtk6y2nRswmAtQgj7D8QqboSPwesgxCp8fdGPT02BJqz5wNST134OvU2',
-      onRefreshToken: function () {
-        return 'pat_ukXKmpWoqtk6y2nRswmAtQgj7D8QqboSPwesgxCp8fdGPT02BJqz5wNST134OvU2'
-      }
-    }
-  });
-</script>
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://sf-cdn.coze.com/obj/unpkg-va/flow-platform/chat-app-sdk/1.2.0-beta.6/libs/oversea/index.js"></script>
+</head>
+<body style="margin: 0; padding: 0;">
+    <script>
+      // Dùng window.onload để đảm bảo web tải xong khung mới gọi Bot
+      window.onload = function() {
+          new CozeWebSDK.WebChatClient({
+            config: { bot_id: '7668150083120185349' },
+            componentProps: { title: 'P1f' },
+            auth: {
+              type: 'token',
+              token: 'pat_ukXKmpWoqtk6y2nRswmAtQgj7D8QqboSPwesgxCp8fdGPT02BJqz5wNST134OvU2',
+              onRefreshToken: function () {
+                return 'pat_ukXKmpWoqtk6y2nRswmAtQgj7D8QqboSPwesgxCp8fdGPT02BJqz5wNST134OvU2'
+              }
+            }
+          });
+      };
+    </script>
+</body>
+</html>
 """
 
 # Gọi khung HTML ẩn để kích hoạt Bot
