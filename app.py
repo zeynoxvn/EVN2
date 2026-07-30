@@ -19,9 +19,9 @@ coze_code = """
     componentProps: { title: 'Trợ lý Sông Ray' },
     auth: {
       type: 'token',
-      token: 'DÁN_MÃ_PAT_CỦA_FEN_VÀO_ĐÂY',
+      token: 'pat_ukXKmpWoqtk6y2nRswmAtQgj7D8QqboSPwesgxCp8fdGPT02BJqz5wNST134OvU2',
       onRefreshToken: function () {
-        return 'DÁN_MÃ_PAT_CỦA_FEN_VÀO_ĐÂY'
+        return 'pat_ukXKmpWoqtk6y2nRswmAtQgj7D8QqboSPwesgxCp8fdGPT02BJqz5wNST134OvU2'
       }
     }
   });
