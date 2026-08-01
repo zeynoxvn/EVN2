@@ -11,7 +11,30 @@ st.subheader("🤖 Trợ Lý AI Học Tập")
 
 # Đường link CDN chính hãng của Botpress (đã nhúng ID của fen)
 # Đường link CDN chính hãng của Botpress (đã nhúng ID chuẩn)
-bot_url = 'https://cdn.botpress.cloud/webchat/v1/index.html?options=%7B%22clientId%22%3A%2232180f7e-9675-4570-91cb-fe856586b71f%22%7D'
+import streamlit.components.v1 as components
 
-# Nhúng thẳng khung chat nguyên bản vào web
-components.iframe(bot_url, height=650, scrolling=True)
+# Đoạn mã JavaScript gốc của Botpress
+botpress_code = """
+<div style="height: 600px; width: 100%; position: relative;">
+    <script src="https://cdn.botpress.cloud/webchat/v1/inject.js"></script>
+    <script>
+      window.botpressWebChat.init({
+          "clientId": "32180f7e-9675-4570-91cb-fe856586b71f",
+          "hostUrl": "https://cdn.botpress.cloud/webchat/v1",
+          "messagingUrl": "https://messaging.botpress.cloud",
+          "botName": "Trợ Lý AI",
+          "hideWidget": false
+      });
+      
+      /* Lệnh này ép khung chat tự động mở lên khi tải trang */
+      window.botpressWebChat.onEvent(function (event) {
+          if (event.type === 'LIFECYCLE.LOADED') {
+              window.botpressWebChat.sendEvent({ type: 'show' });
+          }
+      }, ['LIFECYCLE.LOADED']);
+    </script>
+</div>
+"""
+
+# Nhúng thẳng mã HTML/JS vào Streamlit
+components.html(botpress_code, height=650, scrolling=True)
