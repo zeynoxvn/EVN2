@@ -89,7 +89,7 @@ botpress_code = """
 """
 
 # Khởi tạo khung HTML
-components.html(botpress_code, height=600)
+components.html(botpress_code, height=700, scrolling=True)
 botpress_code = """
 <!DOCTYPE html>
 <html>
