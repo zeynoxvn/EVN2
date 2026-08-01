@@ -94,10 +94,18 @@ botpress_code = """
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="https://cdn.botpress.cloud/webchat/v1/inject.js"></script>
-<script src="https://mediafiles.botpress.cloud/32180f7e-9675-4570-91cb-fe856586b71f/webchat/config.js" defer></script>
+    <script src="https://cdn.botpress.cloud/webchat/v1/inject.js"></script>
+    <script src="https://mediafiles.botpress.cloud/32180f7e-9675-4570-91cb-fe856586b71f/webchat/config.js" defer></script>
 </head>
-<body style="margin: 0; padding: 0;">
+<body style="margin: 0; padding: 0; height: 100vh;">
+    <script>
+        // Bùa ép cửa sổ chat tự động bung ra khi load xong
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'LIFECYCLE.LOADED') {
+                window.botpressWebChat.sendEvent({ type: 'show' });
+            }
+        });
+    </script>
 </body>
 </html>
 """
