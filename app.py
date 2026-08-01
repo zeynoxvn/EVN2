@@ -63,30 +63,41 @@ st.divider() # Đường kẻ mờ phân cách
 # --- KHU VỰC TRỢ LÝ AI (CODE NHƯ CŨ) ---
 st.subheader("🤖 Khu Vực Trợ Lý AI")
 
-coze_code = """
+import streamlit as st
+import streamlit.components.v1 as components
+
+# Cấu hình trang
+st.set_page_config(page_title="Cổng Thông Tin Học Tập", page_icon="🎓", layout="wide")
+
+st.title("🎓 Chào mừng đến với Cổng Thông Tin")
+st.write("Sử dụng Menu bên trái để vào Diễn đàn hoặc Đăng nhập.")
+st.markdown("---")
+st.subheader("🤖 Trợ Lý AI (Nhìn xuống góc dưới bên phải)")
+
+# Code nhúng Botpress (Chỉ cần dán 2 dòng script của fen vào phần head)
+botpress_code = """
 <!DOCTYPE html>
 <html>
 <head>
-    <script src="https://sf-cdn.coze.com/obj/unpkg-va/flow-platform/chat-app-sdk/1.2.0-beta.6/libs/oversea/index.js"></script>
+    <!-- DÁN 2 DÒNG SCRIPT CỦA BOTPRESS VÀO ĐÂY -->
+    <script src="https://cdn.botpress.cloud/webchat/v1/inject.js"></script>
+    <script src="https://mediafiles.botpress.cloud/MÃ_CỦA_FEN_LẤY_TRÊN_TRANG_CHỦ/webchat/config.js" defer></script>
 </head>
 <body style="margin: 0; padding: 0;">
-    <script>
-      window.onload = function() {
-          new CozeWebSDK.WebChatClient({
-            config: { bot_id: '7668240884051509301' },
-            componentProps: { title: 'Trợ lý Học tập' },
-            auth: {
-              type: 'token',
-              token: 'pat_ukXKmpWoqtk6y2nRswmAtQgj7D8QqboSPwesgxCp8fdGPT02BJqz5wNST134OvU2',
-              onRefreshToken: function () {
-                return 'pat_ukXKmpWoqtk6y2nRswmAtQgj7D8QqboSPwesgxCp8fdGPT02BJqz5wNST134OvU2'
-              }
-            }
-          });
-      };
-    </script>
 </body>
 </html>
 """
-# Nhúng con AI
-components.html(coze_code, height=600)
+
+# Khởi tạo khung HTML
+components.html(botpress_code, height=600)
+botpress_code = """
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.botpress.cloud/webchat/v1/inject.js"></script>
+<script src="https://mediafiles.botpress.cloud/32180f7e-9675-4570-91cb-fe856586b71f/webchat/config.js" defer></script>
+</head>
+<body style="margin: 0; padding: 0;">
+</body>
+</html>
+"""
