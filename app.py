@@ -9,8 +9,8 @@ st.write("Sử dụng Menu bên trái để vào Diễn đàn hoặc Đăng nh�
 st.markdown("---")
 st.subheader("🤖 Trợ Lý AI Học Tập")
 
-# Đường link trực tiếp đến thẳng con Bot của fen
-bot_url = "https://mediafiles.botpress.cloud/32180f7e-9675-4570-91cb-fe856586b71f/webchat/bot.html"
+# Đường link CDN chính hãng của Botpress (đã nhúng ID của fen)
+bot_url = 'https://cdn.botpress.cloud/webchat/v1/index.html?options=%7B%22clientId%22%3A%2232180f7e-9675-4570-91cb-fe856586b71f%22%7D'
 
-# Khoét lỗ nhúng trực tiếp link vào web, dẹp bỏ mọi lỗi HTML
+# Nhúng thẳng khung chat nguyên bản vào web
 components.iframe(bot_url, height=650, scrolling=True)
