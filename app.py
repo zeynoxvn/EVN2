@@ -9,27 +9,8 @@ st.write("Sử dụng Menu bên trái để vào Diễn đàn hoặc Đăng nh�
 st.markdown("---")
 st.subheader("🤖 Trợ Lý AI Học Tập")
 
-# Mã Botpress đã được ép tự động mở mà KHÔNG bị xoay vòng
-botpress_code = """
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <script src="https://cdn.botpress.cloud/webchat/v1/inject.js"></script>
-    <script src="https://mediafiles.botpress.cloud/32180f7e-9675-4570-91cb-fe856586b71f/webchat/config.js" defer></script>
-</head>
-<body style="margin: 0; padding: 0; height: 100vh; overflow: hidden;">
-    <script>
-        // Lắng nghe Botpress, hễ nó tải xong cấu hình là bung lụa luôn khỏi cần nút
-        window.addEventListener('message', function(event) {
-            if (event.data && event.data.type === 'LIFECYCLE.LOADED') {
-                window.botpressWebChat.sendEvent({ type: 'show' });
-            }
-        });
-    </script>
-</body>
-</html>
-"""
+# Đường link trực tiếp đến thẳng con Bot của fen
+bot_url = "https://mediafiles.botpress.cloud/32180f7e-9675-4570-91cb-fe856586b71f/webchat/bot.html"
 
-# Khung HTML hiển thị - tắt scrolling để không bị che khuất
-components.html(botpress_code, height=650, scrolling=False)
+# Khoét lỗ nhúng trực tiếp link vào web, dẹp bỏ mọi lỗi HTML
+components.iframe(bot_url, height=650, scrolling=True)
