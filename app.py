@@ -10,6 +10,7 @@ st.markdown("---")
 st.subheader("🤖 Trợ Lý AI Học Tập")
 
 # Đường link CDN chính hãng của Botpress (đã nhúng ID của fen)
+# Đường link CDN chính hãng của Botpress (đã nhúng ID chuẩn)
 bot_url = 'https://cdn.botpress.cloud/webchat/v1/index.html?options=%7B%22clientId%22%3A%2232180f7e-9675-4570-91cb-fe856586b71f%22%7D'
 
 # Nhúng thẳng khung chat nguyên bản vào web
