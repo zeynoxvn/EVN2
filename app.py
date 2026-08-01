@@ -79,31 +79,38 @@ botpress_code = """
 <!DOCTYPE html>
 <html>
 <head>
-    <!-- DÁN 2 DÒNG SCRIPT CỦA BOTPRESS VÀO ĐÂY -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://cdn.botpress.cloud/webchat/v1/inject.js"></script>
-    <script src="https://mediafiles.botpress.cloud/MÃ_CỦA_FEN_LẤY_TRÊN_TRANG_CHỦ/webchat/config.js" defer></script>
 </head>
-<body style="margin: 0; padding: 0;">
+<body style="margin: 0; padding: 0; overflow: hidden;">
+    <script>
+        // Khởi tạo trực tiếp bằng ID của bro, không qua file trung gian
+        window.botpressWebChat.init({
+            "clientId": "32180f7e-9675-4570-91cb-fe856586b71f",
+            "hostUrl": "https://cdn.botpress.cloud/webchat/v1",
+            "messagingUrl": "https://messaging.botpress.cloud",
+            "botName": "Trợ lý Học tập",
+            "theme": "prism",
+            "themeColor": "#2563eb"
+        });
+        
+        // Bùa ép mở khung chat tự động 100%
+        window.botpressWebChat.onEvent(
+            function (event) {
+                if (event.type === 'LIFECYCLE.LOADED') {
+                    window.botpressWebChat.sendEvent({ type: 'show' });
+                }
+            },
+            ['LIFECYCLE.LOADED']
+        );
+    </script>
 </body>
 </html>
 """
 
-# Khởi tạo khung HTML
-components.html(botpress_code, height=700, scrolling=True)
-botpress_code = """
-<!DOCTYPE html>
-<html>
-<head>
-    <script src="https://cdn.botpress.cloud/webchat/v1/inject.js"></script>
-    <script src="https://mediafiles.botpress.cloud/32180f7e-9675-4570-91cb-fe856586b71f/webchat/config.js" defer></script>
-</head>
-<body style="margin: 0; padding: 0; height: 100vh;">
-    <script>
-        // Bùa ép cửa sổ chat tự động bung ra khi load xong
-        window.addEventListener('message', function(event) {
-            if (event.data && event.data.type === 'LIFECYCLE.LOADED') {
-                window.botpressWebChat.sendEvent({ type: 'show' });
-            }
+# NHỚ ĐẢM BẢO DÒNG NÀY Ở DƯỚI CÙNG ĐỂ KHUNG ĐỦ TO:
+components.html(botpress_code, height=650, scrolling=True)
         });
     </script>
 </body>
