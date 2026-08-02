@@ -1,7 +1,29 @@
 import streamlit as st
 import requests
 from src.moderation import moderate_content
+import streamlit as st
+# Khai báo dòng này ở đầu file để "gọi" công cụ ra
+# (Nếu bạn để bo_loc_tu_ngu.py trong thư mục src thì sửa thành: from src.bo_loc_tu_ngu import cham_diem_vi_pham)
+from bo_loc_tu_ngu import cham_diem_vi_pham 
 
+st.title("Diễn Đàn Trao Đổi")
+
+noidung = st.text_area("Nhập bình luận của bạn:")
+
+if st.button("Gửi bình luận"):
+    # Đưa nội dung vào máy chấm điểm
+    ket_qua = cham_diem_vi_pham(noidung)
+    diem = ket_qua["diem_vi_pham"]
+    
+    if diem == 0:
+        st.success("Bình luận của bạn đã được đăng!")
+        # >>> Code lưu vào database thực tế ở đây <<<
+    else:
+        st.error(f"Lỗi! Bình luận vi phạm (Điểm: {diem}/100). {ket_qua['hanh_dong_de_xuat']}")
+        # In chi tiết các từ bị cấm để người dùng biết mà sửa
+        st.write("Các từ vi phạm bạn đã dùng:")
+        for tu, chitiet in ket_qua["chi_tiet"].items():
+            st.write(f"- Chữ '{tu}': {chitiet}")
 # ==========================================
 # 1. CẤU HÌNH TRANG & BIẾN TOÀN CỤC
 # ==========================================
