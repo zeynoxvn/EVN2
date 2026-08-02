@@ -1,7 +1,6 @@
 import streamlit as st
 import requests
-from src.moderation import cham_diem_vi_pham
-
+from bo_loc_tu_ngu import cham_diem_vi_pham
 
 # ==========================================
 # 1. CẤU HÌNH TRANG & BIẾN TOÀN CỤC
