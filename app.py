@@ -1,73 +1,123 @@
 import streamlit as st
+import requests
 import streamlit.components.v1 as components
 
-# 1. Cấu hình trang
+# Cấu hình trang (phải đặt ở dòng đầu tiên)
 st.set_page_config(page_title="Hệ Thống Học Tập AI & Diễn Đàn", page_icon="🔒", layout="wide")
 
-# 2. Khởi tạo trạng thái đăng nhập
-if "da_dang_nhap" not in st.session_state:
-    st.session_state.da_dang_nhap = False
-if "ten_nguoi_dung" not in st.session_state:
-    st.session_state.ten_nguoi_dung = ""
+# 🔴 LINK APPS SCRIPT CỦA BRO:
+GSHEETS_URL = "https://script.google.com/macros/s/AKfycbzV0KqHng6Edeb8LupXLSY84M_v4VnenGHenVWj_d7pvzVlsq2KWwh7dN-xwOSP33oh/exec"
+
+# Khởi tạo bộ nhớ tạm (Session State) để lưu trạng thái đăng nhập
+if "logged_in" not in st.session_state:
+    st.session_state["logged_in"] = False
+    st.session_state["username"] = ""
+    st.session_state["fullname"] = ""
+
+# Hàm gửi dữ liệu lên Google Sheets (giữ nguyên bản chuẩn của bro)
+def send_request(payload):
+    try:
+        res = requests.post(GSHEETS_URL, json=payload, timeout=10)
+        try:
+            return res.json()
+        except Exception:
+            st.error("🚨 LỖI TỪ GOOGLE: CSDL không trả về JSON. Nội dung thực tế là:")
+            st.code(res.text[:500])
+            return None
+    except Exception as e:
+        st.error(f"Lỗi kết nối máy chủ: {e}")
+        return None
 
 # ==========================================
-# KHU VỰC 1: CHẶN CỬA (CHƯA ĐĂNG NHẬP)
+# KHU VỰC 1: CHẶN CỬA - ĐĂNG NHẬP / ĐĂNG KÝ VỚI GOOGLE SHEETS
 # ==========================================
-if not st.session_state.da_dang_nhap:
+if not st.session_state["logged_in"]:
     st.title("🔒 Cổng Đăng Nhập Hệ Thống")
-    st.markdown("Vui lòng đăng nhập hoặc tạo tài khoản mới để truy cập vào trợ lý AI và Diễn Đàn.")
+    st.markdown("Vui lòng đăng nhập hoặc đăng ký tài khoản để truy cập vào trợ lý AI và Diễn Đàn.")
     
-    tab_dang_nhap, tab_dang_ky = st.tabs(["🔑 Đăng Nhập", "📝 Đăng Ký Tài Khoản"])
+    tab1, tab2 = st.tabs(["🔐 Đăng nhập", "📝 Đăng ký tài khoản"])
     
-    with tab_dang_nhap:
-        st.subheader("Đăng nhập vào tài khoản của bạn")
-        email_dn = st.text_input("Email hoặc tên đăng nhập", key="input_email_dn")
-        mat_khau_dn = st.text_input("Mật khẩu", type="password", key="input_mk_dn")
+    # --- TAB ĐĂNG NHẬP ---
+    with tab1:
+        st.subheader("Đăng nhập hệ thống")
+        log_user = st.text_input("Tên đăng nhập (Username)", key="log_user")
+        log_pass = st.text_input("Mật khẩu", type="password", key="log_pass")
         
-        if st.button("🚀 Đăng Nhập Ngay", type="primary", key="btn_dn"):
-            if email_dn.strip() != "" and mat_khau_dn.strip() != "":
-                st.session_state.da_dang_nhap = True
-                st.session_state.ten_nguoi_dung = email_dn
-                st.success("Đăng nhập thành công! Đang chuyển hướng...")
-                st.rerun()
+        if st.button("🚀 Đăng nhập", type="primary", use_container_width=True):
+            if not log_user or not log_pass:
+                st.warning("Vui lòng nhập đủ thông tin!")
             else:
-                st.error("Vui lòng nhập đầy đủ thông tin đăng nhập!")
-
-    with tab_dang_ky:
-        st.subheader("Đăng ký tài khoản học sinh mới")
-        email_dk = st.text_input("Email của bạn", key="input_email_dk")
-        mat_khau_dk = st.text_input("Mật khẩu mới", type="password", key="input_mk_dk")
+                with st.spinner("Đang kiểm tra thông tin với máy chủ..."):
+                    res = send_request({"action": "login", "username": log_user.strip(), "password": log_pass})
+                    if res:
+                        if res.get("status") == "success":
+                            # Lưu thông tin thật từ Google Sheets vào Session State
+                            st.session_state["logged_in"] = True
+                            st.session_state["username"] = log_user.strip()
+                            st.session_state["fullname"] = res.get("fullname", log_user)
+                            st.success(res.get("message"))
+                            st.rerun() # Tải lại trang để mở khóa bên trong
+                        else:
+                            st.error(res.get("message"))
+                            
+    # --- TAB ĐĂNG KÝ ---
+    with tab2:
+        st.subheader("Tạo tài khoản mới")
+        reg_user = st.text_input("Tên đăng nhập (Viết liền không dấu)", key="reg_user")
+        reg_name = st.text_input("Họ và tên thật của bạn", key="reg_name")
+        reg_pass = st.text_input("Mật khẩu", type="password", key="reg_pass")
+        reg_pass2 = st.text_input("Nhập lại mật khẩu", type="password", key="reg_pass2")
         
-        if st.button("✨ Đăng Ký Ngay", key="btn_dk"):
-            if email_dk.strip() != "" and mat_khau_dk.strip() != "":
-                st.success("Đăng ký thành công! Hãy sang tab Đăng Nhập để vào hệ thống.")
+        if st.button("✨ Đăng ký ngay", type="primary", use_container_width=True):
+            if not reg_user or not reg_name or not reg_pass:
+                st.warning("Vui lòng điền đầy đủ thông tin!")
+            elif reg_pass != reg_pass2:
+                st.error("Mật khẩu nhập lại không khớp!")
+            elif " " in reg_user:
+                st.error("Tên đăng nhập không được chứa khoảng trắng!")
             else:
-                st.warning("Vui lòng điền đầy đủ thông tin để đăng ký!")
+                with st.spinner("Đang lưu tài khoản lên Google Sheets..."):
+                    # Gửi yêu cầu đăng ký thật lên Google Sheets
+                    res = send_request({
+                        "action": "register", 
+                        "username": reg_user.strip(), 
+                        "password": reg_pass, 
+                        "fullname": reg_name.strip()
+                    })
+                    if res:
+                        if res.get("status") == "success":
+                            st.success(res.get("message") + " Bạn có thể chuyển sang tab Đăng nhập để vào hệ thống.")
+                        else:
+                            st.error(res.get("message"))
 
 # ==========================================
-# KHU VỰC 2: BÊN TRONG (ĐÃ ĐĂNG NHẬP - CÓ BOTPRESS)
+# KHU VỰC 2: BÊN TRONG (ĐÃ ĐĂNG NHẬP THÀNH CÔNG)
 # ==========================================
 else:
-    # Thanh Sidebar
+    # Thanh Sidebar chào mừng và nút đăng xuất
     with st.sidebar:
-        st.write(f"👤 Xin chào, **{st.session_state.ten_nguoi_dung}**")
-        if st.button("🚪 Đăng Xuất"):
-            st.session_state.da_dang_nhap = False
-            st.session_state.ten_nguoi_dung = ""
-            st.rerun()
+        st.write(f"🎉 Xin chào, **{st.session_state['fullname']}**!")
+        st.info("Băng thông hệ thống đã mở khóa.")
+        
+        if st.button("🚪 Đăng xuất", use_container_width=True):
+            # Xóa sạch thông tin phiên đăng nhập
+            st.session_state["logged_in"] = False
+            st.session_state["username"] = ""
+            st.session_state["fullname"] = ""
+            st.rerun() # Văng về màn hình đăng nhập
             
         st.markdown("---")
         st.markdown("### 🧭 Điều hướng")
-        st.info("Bro có thể chọn các trang con (như Diễn Đàn) ở menu bên trái.")
+        st.page_link("pages/1_Dien_Dan.py", label="💬 Vào Diễn Đàn ngay", icon="👉")
 
-    # Giao diện chính bên trong
+    # Giao diện chính bên trong (Hiển thị Botpress AI của bro)
     st.title("🤖 Trợ Giúp AI & Không Gian Học Tập")
-    st.success("🎉 Chúc mừng bạn đã đăng nhập thành công vào hệ thống!")
+    st.success(f"Chào mừng **{st.session_state['fullname']}** đã đăng nhập vào hệ thống thành công!")
     
     st.markdown("---")
-    st.subheader("💬 Trò chuyện trực tiếp với Trợ lý AI (Botpress):")
+    st.subheader("💬 Trò chuyện trực tiếp với Trợ lý AI:")
 
-    # --- NHÚNG CODE BOTPRESS CỦA BRO VÀO ĐÂY ---
+    # Nhúng mã Botpress của bro vào đây
     botpress_code = """
     <div style="height: 600px; width: 100%; position: relative;">
         <script src="https://cdn.botpress.cloud/webchat/v5.0/inject.js"></script>
@@ -75,5 +125,5 @@ else:
     </div>
     """
     
-    # Hiển thị khung chat botpress lên web Streamlit
+    # Hiển thị khung chat Botpress lên Streamlit
     components.html(botpress_code, height=650, scrolling=True)
