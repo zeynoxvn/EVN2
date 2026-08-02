@@ -89,23 +89,25 @@ if st.button("🚀 Đăng bài ngay", type="primary"):
     if noidung_thao_luan.strip() == "":
         st.warning("Vui lòng nhập nội dung bài viết trước khi đăng!")
     else:
-        # Ném nội dung vào máy kiểm duyệt
         ket_qua = cham_diem_vi_pham(noidung_thao_luan)
         diem = ket_qua["diem_vi_pham"]
         
-        # Xử lý dựa trên điểm số trả về
+        # --- KHAI BÁO BIẾN "GIẤY PHÉP" Ở ĐÂY ---
+        should_post = False 
+        
         if diem == 0:
             st.success(f"✅ Đăng bài thành công môn {mon_hoc}!")
-            # Code lưu bài của bạn sẽ chạy ở đây
+            should_post = True  # Bật cờ True: Cho phép đăng
             
         elif diem <= 30:
             st.warning(f"⚠️ Bài viết đã đăng nhưng cần lưu ý: {ket_qua['hanh_dong_de_xuat']} (Điểm: {diem}/100)")
-            # Code lưu bài của bạn sẽ chạy ở đây
+            should_post = True  # Bật cờ True: Vẫn cho phép đăng
             
         else:
             st.error(f"🚨 Bài viết bị chặn! {ket_qua['hanh_dong_de_xuat']} (Điểm vi phạm: {diem}/100)")
             st.write("**Hệ thống phát hiện các từ ngữ sau:**")
             st.json(ket_qua["chi_tiet"])
+            should_post = False # Giữ cờ False: Cấm đăng
         # Gửi dữ liệu nếu qua vòng kiểm duyệt
         if should_post:
             with st.spinner("⚡ Đang tải bài viết lên diễn đàn..."):
