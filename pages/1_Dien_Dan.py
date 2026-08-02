@@ -6,7 +6,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Bây giờ mới gọi hàm ra
-from bo_loc_tu_ngu import cham_diem_vi_pham
+from src.bo_loc_tu_ngu import cham_diem_vi_pham
 
 # ==========================================
 # 1. CẤU HÌNH TRANG & BIẾN TOÀN CỤC
