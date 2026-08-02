@@ -2,8 +2,6 @@ import streamlit as st
 import requests
 from src.moderation import cham_diem_vi_pham
 
-# Khai báo dòng này ở đầu file để "gọi" công cụ ra
-# (Nếu bạn để bo_loc_tu_ngu.py trong thư mục src thì sửa thành: from src.bo_loc_tu_ngu import cham_diem_vi_pham)
 
 # ==========================================
 # 1. CẤU HÌNH TRANG & BIẾN TOÀN CỤC
