@@ -4,25 +4,7 @@ from src.moderation import moderate_content
 import streamlit as st
 # Khai báo dòng này ở đầu file để "gọi" công cụ ra
 # (Nếu bạn để bo_loc_tu_ngu.py trong thư mục src thì sửa thành: from src.bo_loc_tu_ngu import cham_diem_vi_pham)
-from src.bo_loc_tu_ngu import cham_diem_vi_pham
-st.title("Diễn Đàn Trao Đổi")
 
-noidung = st.text_area("Nhập bình luận của bạn:")
-
-if st.button("Gửi bình luận"):
-    # Đưa nội dung vào máy chấm điểm
-    ket_qua = cham_diem_vi_pham(noidung)
-    diem = ket_qua["diem_vi_pham"]
-    
-    if diem == 0:
-        st.success("Bình luận của bạn đã được đăng!")
-        # >>> Code lưu vào database thực tế ở đây <<<
-    else:
-        st.error(f"Lỗi! Bình luận vi phạm (Điểm: {diem}/100). {ket_qua['hanh_dong_de_xuat']}")
-        # In chi tiết các từ bị cấm để người dùng biết mà sửa
-        st.write("Các từ vi phạm bạn đã dùng:")
-        for tu, chitiet in ket_qua["chi_tiet"].items():
-            st.write(f"- Chữ '{tu}': {chitiet}")
 # ==========================================
 # 1. CẤU HÌNH TRANG & BIẾN TOÀN CỤC
 # ==========================================
@@ -91,35 +73,36 @@ with st.sidebar:
 # 4. KHU VỰC ĐĂNG BÀI MỚI
 # ==========================================
 st.subheader("✍️ Đăng bài thảo luận mới")
-col1, col2 = st.columns([1, 2])
 
+col1, col2 = st.columns(2)
 with col1:
-    subject = st.selectbox("📚 Chọn môn học:", DANH_SACH_MON)
-
+    mon_hoc = st.selectbox("📚 Chọn môn học:", ["Toán học", "Ngữ văn", "Tiếng Anh", "Lịch sử", "Địa lý"])
 with col2:
-    user_input = st.text_area("📝 Nội dung thảo luận:", placeholder="Nhập câu hỏi hoặc ý kiến của bạn...", height=120)
+    # Ô nhập nội dung
+    noidung_thao_luan = st.text_area("📝 Nội dung thảo luận:", placeholder="Nhập câu hỏi hoặc ý kiến của bạn...")
 
-if st.button("🚀 Đăng bài ngay", type="primary", use_container_width=True):
-    if not user_input.strip():
-        st.warning("⚠️ Vui lòng nhập nội dung bài viết!")
+# Xử lý khi bấm nút Đăng bài
+if st.button("🚀 Đăng bài ngay", type="primary"):
+    if noidung_thao_luan.strip() == "":
+        st.warning("Vui lòng nhập nội dung bài viết trước khi đăng!")
     else:
-        should_post = False
+        # Ném nội dung vào máy kiểm duyệt
+        ket_qua = cham_diem_vi_pham(noidung_thao_luan)
+        diem = ket_qua["diem_vi_pham"]
         
-        # Xử lý kiểm duyệt AI
-        if bypass_ai:
-            should_post = True
+        # Xử lý dựa trên điểm số trả về
+        if diem == 0:
+            st.success(f"✅ Đăng bài thành công môn {mon_hoc}!")
+            # Code lưu bài của bạn sẽ chạy ở đây
+            
+        elif diem <= 30:
+            st.warning(f"⚠️ Bài viết đã đăng nhưng cần lưu ý: {ket_qua['hanh_dong_de_xuat']} (Điểm: {diem}/100)")
+            # Code lưu bài của bạn sẽ chạy ở đây
+            
         else:
-            with st.spinner("🛡️ Hệ thống đang kiểm duyệt nội dung..."):
-                mod_result = moderate_content(text=user_input, api_key=api_key, strikes=0, force_ai=False)
-                
-                if mod_result.action == "allow":
-                    should_post = True
-                else:
-                    st.error(f"❌ Bài viết không được duyệt! (Hành động: {mod_result.action.upper()})")
-                    st.warning(f"**Lý do:** {mod_result.reason}")
-                    if getattr(mod_result, 'excerpt', None):
-                        st.info(f"**Từ ngữ nghi vấn:** `{mod_result.excerpt}`")
-
+            st.error(f"🚨 Bài viết bị chặn! {ket_qua['hanh_dong_de_xuat']} (Điểm vi phạm: {diem}/100)")
+            st.write("**Hệ thống phát hiện các từ ngữ sau:**")
+            st.json(ket_qua["chi_tiet"])
         # Gửi dữ liệu nếu qua vòng kiểm duyệt
         if should_post:
             with st.spinner("⚡ Đang tải bài viết lên diễn đàn..."):
