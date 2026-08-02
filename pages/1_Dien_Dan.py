@@ -85,29 +85,44 @@ with col2:
     noidung_thao_luan = st.text_area("📝 Nội dung thảo luận:", placeholder="Nhập câu hỏi hoặc ý kiến của bạn...")
 
 # Xử lý khi bấm nút Đăng bài
+# Xử lý khi bấm nút Đăng bài
 if st.button("🚀 Đăng bài ngay", type="primary"):
-    if noidung_thao_luan.strip() == "":
+    # Đổi tên biến 'noidung_thao_luan' thành 'user_input' cho khớp với phần dưới của bro
+    user_input = noidung_thao_luan 
+    
+    # Đổi tên biến 'mon_hoc' thành 'subject' cho khớp với phần gửi Google Sheets
+    subject = mon_hoc 
+
+    if user_input.strip() == "":
         st.warning("Vui lòng nhập nội dung bài viết trước khi đăng!")
     else:
-        ket_qua = cham_diem_vi_pham(noidung_thao_luan)
+        # Ném nội dung vào máy kiểm duyệt
+        ket_qua = cham_diem_vi_pham(user_input)
         diem = ket_qua["diem_vi_pham"]
         
-        # --- KHAI BÁO BIẾN "GIẤY PHÉP" Ở ĐÂY ---
+        # Khai báo giấy phép thông hành
         should_post = False 
         
         if diem == 0:
-            st.success(f"✅ Đăng bài thành công môn {mon_hoc}!")
-            should_post = True  # Bật cờ True: Cho phép đăng
+            st.success(f"✅ Đăng bài thành công môn {subject}!")
+            should_post = True  # Cho phép đăng
             
         elif diem <= 30:
             st.warning(f"⚠️ Bài viết đã đăng nhưng cần lưu ý: {ket_qua['hanh_dong_de_xuat']} (Điểm: {diem}/100)")
-            should_post = True  # Bật cờ True: Vẫn cho phép đăng
+            should_post = True  # Vẫn cho phép đăng
             
         else:
             st.error(f"🚨 Bài viết bị chặn! {ket_qua['hanh_dong_de_xuat']} (Điểm vi phạm: {diem}/100)")
             st.write("**Hệ thống phát hiện các từ ngữ sau:**")
             st.json(ket_qua["chi_tiet"])
-            should_post = False # Giữ cờ False: Cấm đăng
+            should_post = False # Cấm đăng
+
+        # Sau đoạn này, biến 'should_post', 'subject', và 'user_input' đều đã có sẵn.
+        # Khi code chạy tiếp xuống dòng 114 của bro:
+        # if should_post:
+        #     if send_to_sheets({"action": "add_post", "subject": subject, "content": user_input}):
+        # Nó sẽ chạy mượt mà qua luôn mà không bao giờ lỗi nữa!
+          
         # Gửi dữ liệu nếu qua vòng kiểm duyệt
         if should_post:
             with st.spinner("⚡ Đang tải bài viết lên diễn đàn..."):
