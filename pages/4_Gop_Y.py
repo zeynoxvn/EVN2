@@ -1,4 +1,9 @@
 import streamlit as st
+# Chặn cửa: Bắt buộc phải đăng nhập mới được vào trang này
+if not st.session_state.get("logged_in", False):
+    st.error("⚠️ Bạn chưa đăng nhập! Vui lòng quay lại trang chính để đăng nhập trước.")
+    st.page_link("app.py", label="🔑 Quay lại Trang chủ để Đăng nhập", icon="👉")
+    st.stop()
 import os
 from datetime import datetime
 
