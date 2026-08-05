@@ -96,12 +96,13 @@ else:
         st.markdown(f"### 👋 Chào, **{current_fullname}**")
         st.info("Trạng thái: Hoạt động 🟢")
         st.markdown("---")
-        st.markdown("### 🧭 Menu Điều Hướng")
+      st.markdown("### 🧭 Menu Điều Hướng")
         st.page_link("app.py", label="🏠 Trang Chủ (AI Chat)", icon="⚡")
         st.page_link("pages/1_Dien_Dan.py", label="💬 Diễn Đàn Thảo Luận", icon="🗣️")
         st.page_link("pages/2_Bang_Xep_Hang.py", label="🏆 Bảng Xếp Hạng", icon="📊")
         st.page_link("pages/3_Trac_Nghiem_AI.py", label="📝 Trắc Nghiệm AI", icon="🤖")
         st.page_link("pages/4_Gop_Y.py", label="📮 Hòm Thư Góp Ý", icon="📥")
+        st.page_link("pages/5_Ket_Ban.py", label="👥 Quản Lý Kết Bạn", icon="🤝")  # <--- Dán dòng này vào đây
         st.page_link("pages/4_Kiem_Duyet_Admin.py", label="🛡️ Kiểm Duyệt Admin", icon="🔒")
         st.markdown("---")
         if st.button("🚪 Đăng xuất", use_container_width=True):
