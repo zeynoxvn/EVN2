@@ -8,13 +8,15 @@ st.set_page_config(page_title="Hệ Thống Học Tập AI & Diễn Đàn", page
 # 🔴 LINK APPS SCRIPT CỦA BRO:
 GSHEETS_URL = "https://script.google.com/macros/s/AKfycbzV0KqHng6Edeb8LupXLSY84M_v4VnenGHenVWj_d7pvzVlsq2KWwh7dN-xwOSP33oh/exec"
 
-# Khởi tạo bộ nhớ tạm (Session State) để lưu trạng thái đăng nhập
+# Khởi tạo bộ nhớ tạm (Session State) để lưu trạng thái đăng nhập an toàn
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
+if "username" not in st.session_state:
     st.session_state["username"] = ""
+if "fullname" not in st.session_state:
     st.session_state["fullname"] = ""
 
-# Hàm gửi dữ liệu lên Google Sheets (giữ nguyên bản chuẩn của bro)
+# Hàm gửi dữ liệu lên Google Sheets
 def send_request(payload):
     try:
         res = requests.post(GSHEETS_URL, json=payload, timeout=10)
@@ -51,12 +53,11 @@ if not st.session_state["logged_in"]:
                     res = send_request({"action": "login", "username": log_user.strip(), "password": log_pass})
                     if res:
                         if res.get("status") == "success":
-                            # Lưu thông tin thật từ Google Sheets vào Session State
                             st.session_state["logged_in"] = True
                             st.session_state["username"] = log_user.strip()
                             st.session_state["fullname"] = res.get("fullname", log_user)
                             st.success(res.get("message"))
-                            st.rerun() # Tải lại trang để mở khóa bên trong
+                            st.rerun()
                         else:
                             st.error(res.get("message"))
                             
@@ -77,7 +78,6 @@ if not st.session_state["logged_in"]:
                 st.error("Tên đăng nhập không được chứa khoảng trắng!")
             else:
                 with st.spinner("Đang lưu tài khoản lên Google Sheets..."):
-                    # Gửi yêu cầu đăng ký thật lên Google Sheets
                     res = send_request({
                         "action": "register", 
                         "username": reg_user.strip(), 
@@ -94,30 +94,29 @@ if not st.session_state["logged_in"]:
 # KHU VỰC 2: BÊN TRONG (ĐÃ ĐĂNG NHẬP THÀNH CÔNG)
 # ==========================================
 else:
-    # Thanh Sidebar chào mừng và nút đăng xuất
+    # Lấy tên an toàn để tránh lỗi KeyError
+    current_fullname = st.session_state.get('fullname', 'Thành viên')
+
     with st.sidebar:
-        st.write(f"🎉 Xin chào, **{st.session_state['fullname']}**!")
+        st.write(f"🎉 Xin chào, **{current_fullname}**!")
         st.info("Băng thông hệ thống đã mở khóa.")
         
         if st.button("🚪 Đăng xuất", use_container_width=True):
-            # Xóa sạch thông tin phiên đăng nhập
             st.session_state["logged_in"] = False
             st.session_state["username"] = ""
             st.session_state["fullname"] = ""
-            st.rerun() # Văng về màn hình đăng nhập
+            st.rerun()
             
         st.markdown("---")
         st.markdown("### 🧭 Điều hướng")
         st.page_link("pages/1_Dien_Dan.py", label="💬 Vào Diễn Đàn ngay", icon="👉")
 
-    # Giao diện chính bên trong (Hiển thị Botpress AI của bro)
     st.title("🤖 Trợ Giúp AI & Không Gian Học Tập")
-    st.success(f"Chào mừng **{st.session_state['fullname']}** đã đăng nhập vào hệ thống thành công!")
+    st.success(f"Chào mừng **{current_fullname}** đã đăng nhập vào hệ thống thành công!")
     
     st.markdown("---")
     st.subheader("💬 Trò chuyện trực tiếp với Trợ lý AI:")
 
-    # Nhúng mã Botpress của bro vào đây
     botpress_code = """
     <div style="height: 600px; width: 100%; position: relative;">
         <script src="https://cdn.botpress.cloud/webchat/v5.0/inject.js"></script>
@@ -125,5 +124,4 @@ else:
     </div>
     """
     
-    # Hiển thị khung chat Botpress lên Streamlit
     components.html(botpress_code, height=650, scrolling=True)
