@@ -2,13 +2,28 @@ import streamlit as st
 import requests
 import streamlit.components.v1 as components
 
-# Cấu hình trang (phải đặt ở dòng đầu tiên)
-st.set_page_config(page_title="Hệ Thống Học Tập AI & Diễn Đàn", page_icon="🔒", layout="wide")
+# Cấu hình trang
+st.set_page_config(page_title="EVN by AN,DŨNG - Cổng Học Tập", page_icon="⚡", layout="wide")
+
+# --- CSS GIAO DIỆN XANH - TRẮNG HIỆN ĐẠI (PHONG CÁCH CANVA) ---
+st.markdown("""
+    <style>
+    .stApp { background-color: #F4F6F9; }
+    .stButton > button {
+        border-radius: 8px;
+        font-weight: 600;
+        background: #1E88E5;
+        color: white;
+        border: none;
+    }
+    .stButton > button:hover { background: #1565C0; color: white; }
+    </style>
+""", unsafe_allow_html=True)
 
 # 🔴 LINK APPS SCRIPT CỦA BRO:
 GSHEETS_URL = "https://script.google.com/macros/s/AKfycbzV0KqHng6Edeb8LupXLSY84M_v4VnenGHenVWj_d7pvzVlsq2KWwh7dN-xwOSP33oh/exec"
 
-# Khởi tạo bộ nhớ tạm (Session State) để lưu trạng thái đăng nhập an toàn
+# Khởi tạo bộ nhớ tạm (Session State) an toàn
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 if "username" not in st.session_state:
@@ -23,7 +38,7 @@ def send_request(payload):
         try:
             return res.json()
         except Exception:
-            st.error("🚨 LỖI TỪ GOOGLE: CSDL không trả về JSON. Nội dung thực tế là:")
+            st.error("🚨 LỖI TỪ GOOGLE: CSDL không trả về JSON.")
             st.code(res.text[:500])
             return None
     except Exception as e:
@@ -31,97 +46,97 @@ def send_request(payload):
         return None
 
 # ==========================================
-# KHU VỰC 1: CHẶN CỬA - ĐĂNG NHẬP / ĐĂNG KÝ VỚI GOOGLE SHEETS
+# KHU VỰC 1: CHẶN CỬA - ĐĂNG NHẬP / ĐĂNG KÝ
 # ==========================================
 if not st.session_state["logged_in"]:
-    st.title("🔒 Cổng Đăng Nhập Hệ Thống")
-    st.markdown("Vui lòng đăng nhập hoặc đăng ký tài khoản để truy cập vào trợ lý AI và Diễn Đàn.")
-    
-    tab1, tab2 = st.tabs(["🔐 Đăng nhập", "📝 Đăng ký tài khoản"])
-    
-    # --- TAB ĐĂNG NHẬP ---
-    with tab1:
-        st.subheader("Đăng nhập hệ thống")
-        log_user = st.text_input("Tên đăng nhập (Username)", key="log_user")
-        log_pass = st.text_input("Mật khẩu", type="password", key="log_pass")
+    col1, col2, col3 = st.columns([1, 1.5, 1])
+    with col2:
+        st.markdown("<h2 style='text-align: center; color: #1E88E5;'>⚡ EVN by AN,DŨNG</h2>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: #666;'>Đăng nhập để khám phá không gian học tập và trợ lý AI thông minh.</p>", unsafe_allow_html=True)
         
-        if st.button("🚀 Đăng nhập", type="primary", use_container_width=True):
-            if not log_user or not log_pass:
-                st.warning("Vui lòng nhập đủ thông tin!")
-            else:
-                with st.spinner("Đang kiểm tra thông tin với máy chủ..."):
-                    res = send_request({"action": "login", "username": log_user.strip(), "password": log_pass})
-                    if res:
-                        if res.get("status") == "success":
+        tab1, tab2 = st.tabs(["🔐 Đăng nhập", "📝 Đăng ký"])
+        
+        # --- TAB ĐĂNG NHẬP ---
+        with tab1:
+            log_user = st.text_input("Tên đăng nhập", key="log_user")
+            log_pass = st.text_input("Mật khẩu", type="password", key="log_pass")
+            
+            if st.button("🚀 Đăng nhập ngay", use_container_width=True):
+                if not log_user or not log_pass:
+                    st.warning("Vui lòng điền đủ thông tin!")
+                else:
+                    with st.spinner("Đang kiểm tra thông tin..."):
+                        res = send_request({"action": "login", "username": log_user.strip(), "password": log_pass})
+                        if res and res.get("status") == "success":
                             st.session_state["logged_in"] = True
                             st.session_state["username"] = log_user.strip()
                             st.session_state["fullname"] = res.get("fullname", log_user)
-                            st.success(res.get("message"))
+                            st.success("Đăng nhập thành công!")
                             st.rerun()
                         else:
-                            st.error(res.get("message"))
+                            st.error(res.get("message", "Sai tài khoản hoặc mật khẩu!"))
                             
-    # --- TAB ĐĂNG KÝ ---
-    with tab2:
-        st.subheader("Tạo tài khoản mới")
-        reg_user = st.text_input("Tên đăng nhập (Viết liền không dấu)", key="reg_user")
-        reg_name = st.text_input("Họ và tên thật của bạn", key="reg_name")
-        reg_pass = st.text_input("Mật khẩu", type="password", key="reg_pass")
-        reg_pass2 = st.text_input("Nhập lại mật khẩu", type="password", key="reg_pass2")
-        
-        if st.button("✨ Đăng ký ngay", type="primary", use_container_width=True):
-            if not reg_user or not reg_name or not reg_pass:
-                st.warning("Vui lòng điền đầy đủ thông tin!")
-            elif reg_pass != reg_pass2:
-                st.error("Mật khẩu nhập lại không khớp!")
-            elif " " in reg_user:
-                st.error("Tên đăng nhập không được chứa khoảng trắng!")
-            else:
-                with st.spinner("Đang lưu tài khoản lên Google Sheets..."):
-                    res = send_request({
-                        "action": "register", 
-                        "username": reg_user.strip(), 
-                        "password": reg_pass, 
-                        "fullname": reg_name.strip()
-                    })
-                    if res:
-                        if res.get("status") == "success":
-                            st.success(res.get("message") + " Bạn có thể chuyển sang tab Đăng nhập để vào hệ thống.")
+        # --- TAB ĐĂNG KÝ ---
+        with tab2:
+            reg_user = st.text_input("Tên đăng nhập (không dấu)", key="reg_user")
+            reg_name = st.text_input("Họ và tên thật", key="reg_name")
+            reg_pass = st.text_input("Mật khẩu", type="password", key="reg_pass")
+            reg_pass2 = st.text_input("Nhập lại mật khẩu", type="password", key="reg_pass2")
+            
+            if st.button("✨ Tạo tài khoản", use_container_width=True):
+                if not reg_user or not reg_name or not reg_pass:
+                    st.warning("Vui lòng điền đủ thông tin!")
+                elif reg_pass != reg_pass2:
+                    st.error("Mật khẩu không khớp!")
+                elif " " in reg_user:
+                    st.error("Tên đăng nhập không được chứa khoảng trắng!")
+                else:
+                    with st.spinner("Đang lưu tài khoản lên Google Sheets..."):
+                        res = send_request({
+                            "action": "register", 
+                            "username": reg_user.strip(), 
+                            "password": reg_pass, 
+                            "fullname": reg_name.strip()
+                        })
+                        if res and res.get("status") == "success":
+                            st.success("Đăng ký thành công! Hãy qua tab Đăng nhập.")
                         else:
-                            st.error(res.get("message"))
+                            st.error(res.get("message", "Lỗi đăng ký!"))
 
 # ==========================================
-# KHU VỰC 2: BÊN TRONG (ĐÃ ĐĂNG NHẬP THÀNH CÔNG)
+# KHU VỰC 2: BÊN TRONG KHI ĐÃ ĐĂNG NHẬP
 # ==========================================
 else:
-    # Lấy tên an toàn để tránh lỗi KeyError
     current_fullname = st.session_state.get('fullname', 'Thành viên')
-
+    
+    # Sidebar điều hướng
     with st.sidebar:
-        st.write(f"🎉 Xin chào, **{current_fullname}**!")
-        st.info("Băng thông hệ thống đã mở khóa.")
-        
+        st.markdown(f"### 👋 Chào, **{current_fullname}**")
+        st.info("Trạng thái: Hoạt động 🟢")
+        st.markdown("---")
+        st.markdown("### 🧭 Menu Điều Hướng")
+        st.page_link("app.py", label="🏠 Trang Chủ", icon="⚡")
+        st.page_link("pages/1_Dien_Dan.py", label="💬 Diễn Đàn Thảo Luận", icon="🗣️")
+        st.page_link("pages/4_Gop_Y.py", label="📮 Hòm Thư Góp Ý", icon="📥")
+        st.markdown("---")
         if st.button("🚪 Đăng xuất", use_container_width=True):
             st.session_state["logged_in"] = False
             st.session_state["username"] = ""
             st.session_state["fullname"] = ""
             st.rerun()
-            
-        st.markdown("---")
-        st.markdown("### 🧭 Điều hướng")
-        st.page_link("pages/1_Dien_Dan.py", label="💬 Vào Diễn Đàn ngay", icon="👉")
 
+    # Giao diện chính
     st.title("🤖 Trợ Giúp AI & Không Gian Học Tập")
-    st.success(f"Chào mừng **{current_fullname}** đã đăng nhập vào hệ thống thành công!")
-    
+    st.markdown(f"Chào mừng **{current_fullname}** đã đăng nhập vào hệ thống thành công!")
     st.markdown("---")
     st.subheader("💬 Trò chuyện trực tiếp với Trợ lý AI:")
 
+    # Nhúng khung chat Botpress
     botpress_code = """
-    <div style="height: 600px; width: 100%; position: relative;">
+    <div style="height: 600px; width: 100%; position: relative; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
         <script src="https://cdn.botpress.cloud/webchat/v5.0/inject.js"></script>
         <script src="https://files.bpcontent.cloud/2026/08/01/04/20260801041109-K5GAT84Z.js" defer></script>
     </div>
     """
     
-    components.html(botpress_code, height=650, scrolling=True)
+    components.html(botpress_code, height=630, scrolling=True)
