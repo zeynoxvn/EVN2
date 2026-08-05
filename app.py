@@ -91,6 +91,7 @@ else:
     current_fullname = st.session_state.get('fullname', 'Thành viên')
     
     # Sidebar điều hướng gọn gàng, có đủ Bảng Xếp Hạng và Trắc Nghiệm AI
+  # Sidebar điều hướng
     with st.sidebar:
         st.markdown(f"### 👋 Chào, **{current_fullname}**")
         st.info("Trạng thái: Hoạt động 🟢")
@@ -101,6 +102,7 @@ else:
         st.page_link("pages/2_Bang_Xep_Hang.py", label="🏆 Bảng Xếp Hạng", icon="📊")
         st.page_link("pages/3_Trac_Nghiem_AI.py", label="📝 Trắc Nghiệm AI", icon="🤖")
         st.page_link("pages/4_Gop_Y.py", label="📮 Hòm Thư Góp Ý", icon="📥")
+        st.page_link("pages/4_Kiem_Duyet_Admin.py", label="🛡️ Kiểm Duyệt Admin", icon="🔒")
         st.markdown("---")
         if st.button("🚪 Đăng xuất", use_container_width=True):
             st.session_state["logged_in"] = False
