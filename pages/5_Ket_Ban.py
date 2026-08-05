@@ -28,7 +28,6 @@ def get_friend_data():
     except Exception:
         return {"status": "error", "pending": [], "friends": []}
 
-# Chia làm 2 cột: Cột trái (Tìm kiếm & Lời mời), Cột phải (Danh sách bạn bè)
 col1, col2 = st.columns([1, 1])
 
 with col1:
@@ -60,7 +59,6 @@ with col1:
     st.markdown("---")
     st.subheader("📥 Lời mời kết bạn đang chờ")
     
-    # Lấy dữ liệu từ Google Sheets
     friend_data = get_friend_data()
     pending_list = friend_data.get("pending", [])
     
@@ -72,7 +70,8 @@ with col1:
             sender_name = p.get("sender")
             
             with st.container(border=True):
-                st.write(- f"👤 **{sender_name}** muốn kết bạn với bạn.")
+                # Đã sửa lỗi: Xóa dấu trừ thừa ở đây
+                st.write(f"👤 **{sender_name}** muốn kết bạn với bạn.")
                 if st.button("✅ Chấp nhận", key=f"accept_{req_id}"):
                     with st.spinner("Đang xử lý..."):
                         try:
