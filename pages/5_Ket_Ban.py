@@ -98,7 +98,15 @@ with col2:
         for f in friends_list:
             f_name = f.get("friend")
             with st.container(border=True):
-                st.write(f"👤 **{f_name}** (Bạn bè)")
+             col_name, col_btn = st.columns([3, 1])
+                
+                with col_name:
+                    st.write(f"👤 **{f_name}** (Bạn bè)")
+                
+                with col_btn:
+                    if st.button("💬 Nhắn", key=f"chat_{f_name}"):
+                        st.session_state.chat_with = f_name
+                        st.switch_page("pages/6_Nhan_Tin.py")
 
 st.markdown("---")
 st.page_link("app.py", label="🏠 Quay về Trang chủ", icon="⬅️")
