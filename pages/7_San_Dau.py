@@ -3,16 +3,30 @@ import requests
 
 st.set_page_config(page_title="Sàn Đấu Toán Học", page_icon="⚔️")
 
-# --- NÚT QUAY LẠI TRANG CHỦ (Lúc nào cũng hiện) ---
+# ==========================================
+# 1. NÚT QUAY LẠI (LÚC NÀO CŨNG HIỆN)
+# ==========================================
 st.page_link("app.py", label="🏠 Quay lại Trang chủ", icon="⬅️")
+st.markdown("---") # Kẻ một đường ngang cho tách biệt
 
 # --- ĐIỀN LINK API CỦA FEN VÀO ĐÂY ---
-API_URL = "https://script.google.com/macros/s/AKfycbzV0KqHng6Edeb8LupXLSY84M_v4VnenGHenVWj_d7pvzVlsq2KWwh7dN-xwOSP33oh/exec" 
+API_URL = "LINK_WEB_APP_APPS_SCRIPT_CUA_FEN" 
 
+# ==========================================
+# 2. KHÓA CỬA SÀN ĐẤU (NẾU CHƯA ĐĂNG NHẬP)
+# ==========================================
+if "logged_in" not in st.session_state or not st.session_state.logged_in:
+    st.warning("⚠️ Khu vực hạn chế: Bạn chưa báo danh!")
+    st.info("Vui lòng bấm nút 'Quay lại Trang chủ' ở trên hoặc chọn trang Đăng Nhập bên menu trái để ghi danh nhé.")
+    st.stop() # Lệnh này sẽ chặn đứng, không cho hiện câu hỏi bên dưới
+
+# ==========================================
+# 3. SÀN ĐẤU (CHỈ HIỆN KHI ĐÃ ĐĂNG NHẬP)
+# ==========================================
 st.title("⚔️ Sàn Đấu Toán Học")
 st.markdown("Chào mừng các cao thủ đến với đấu trường trí tuệ!")
 
-# 1. KHỞI TẠO BỘ NHỚ TẠM
+# KHỞI TẠO BỘ NHỚ TẠM CHO TRẬN ĐẤU
 if "questions" not in st.session_state:
     st.session_state.questions = []
 if "current_q" not in st.session_state:
@@ -22,7 +36,7 @@ if "score" not in st.session_state:
 if "is_playing" not in st.session_state:
     st.session_state.is_playing = False
 
-# Hàm lấy câu hỏi từ API (Đã sửa lại để bắt lỗi)
+# HÀM LẤY ĐỀ TỪ GOOGLE SHEETS
 def fetch_questions():
     with st.spinner("Đang xáo trộn bộ câu hỏi từ ngân hàng đề..."):
         try:
@@ -34,14 +48,13 @@ def fetch_questions():
                 st.session_state.current_q = 0
                 st.session_state.score = 0
                 st.session_state.is_playing = True
-                st.rerun() # Chỉ tải lại trang khi đã lấy đề thành công!
+                st.rerun() 
             else:
-                # Nếu API báo lỗi, nó sẽ hiện đỏ lòm ở đây
                 st.error(f"Lỗi từ máy chủ: {response.get('message')}")
         except Exception as e:
             st.error(f"Không thể kết nối API. Vui lòng kiểm tra lại đường link: {e}")
 
-# Hàm kiểm tra đáp án
+# HÀM CHẤM ĐIỂM
 def check_answer(selected_option, correct_answer):
     if selected_option == correct_answer:
         st.session_state.score += 10
@@ -50,12 +63,9 @@ def check_answer(selected_option, correct_answer):
         st.toast(f"Sai rồi! Đáp án đúng là {correct_answer} ❌", icon="🚨")
     st.session_state.current_q += 1
 
-# 2. GIAO DIỆN HIỂN THỊ
-st.markdown("---")
-
+# GIAO DIỆN THI ĐẤU
 if not st.session_state.is_playing:
     st.info("Nhấn nút bên dưới để bắt đầu bốc 5 câu hỏi ngẫu nhiên và tính giờ!")
-    # Nút bấm bắt đầu (Đã bỏ st.rerun() ở đây để không làm mất lỗi)
     if st.button("🚀 BẮT ĐẦU THI ĐẤU", use_container_width=True, type="primary"):
         fetch_questions()
 else:
@@ -64,6 +74,7 @@ else:
         col1, col2 = st.columns(2)
         col1.metric("Tiến độ", f"Câu {st.session_state.current_q + 1} / {len(st.session_state.questions)}")
         col2.metric("Điểm hiện tại", f"{st.session_state.score} 🏆")
+        
         st.subheader(f"❓ {q['question']}")
         st.caption(f"Độ khó: {q['level']}")
         st.write("") 
