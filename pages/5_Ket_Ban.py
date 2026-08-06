@@ -98,7 +98,7 @@ with col2:
         for f in friends_list:
             f_name = f.get("friend")
             with st.container(border=True):
-             col_name, col_btn = st.columns([3, 1])
+                col_name, col_btn = st.columns([3, 1])
                 
                 with col_name:
                     st.write(f"👤 **{f_name}** (Bạn bè)")
