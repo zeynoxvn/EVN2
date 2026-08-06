@@ -2,30 +2,6 @@ import streamlit as st
 import streamlit as st
 import requests
 
-st.set_page_config(page_title="Sàn Đấu Toán Học", page_icon="⚔️")
-
-# ==========================================
-# KHÓA CỬA SÀN ĐẤU - BẮT BUỘC ĐĂNG NHẬP
-# ==========================================
-# Lưu ý: "logged_in" là tên biến ví dụ. Bro cần xem lại bên file Đăng nhập 
-# của bro đang dùng biến nào để lưu trạng thái đăng nhập (vd: "username", "user_id"...)
-# thì thay chữ "logged_in" bằng chữ đó nhé.
-
-if "logged_in" not in st.session_state or not st.session_state.logged_in:
-    st.warning("⚠️ Khu vực hạn chế: Bạn chưa báo danh!")
-    st.info("👈 Vui lòng chọn trang **Đăng Nhập** ở thanh menu bên trái để ghi danh trước khi bước lên sàn đấu nhé.")
-    st.stop() # Lệnh này cực kỳ quan trọng: Lập tức dừng chạy toàn bộ đoạn code phía dưới!
-
-# ==========================================
-# NẾU ĐÃ ĐĂNG NHẬP THÌ CHẠY TIẾP CODE BÊN DƯỚI
-# ==========================================
-
-# --- ĐIỀN LINK API CỦA BRO VÀO ĐÂY ---
-API_URL = "LINK_WEB_APP_APPS_SCRIPT_CUA_BRO" 
-
-st.title("⚔️ Sàn Đấu Toán Học")
-st.markdown("Chào mừng các cao thủ đến với đấu trường trí tuệ!")
-
 # ... (Giữ nguyên toàn bộ phần code còn lại của bro từ đoạn này trở xuống) ...
 import requests
 import streamlit.components.v1 as components
