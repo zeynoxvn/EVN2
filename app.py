@@ -105,6 +105,7 @@ else:
         st.page_link("pages/4_Gop_Y.py", label="📮 Hòm Thư Góp Ý", icon="📥")
         st.page_link("pages/5_Ket_Ban.py", label="👥 Quản Lý Kết Ban", icon="🤝")
         st.page_link("pages/4_Kiem_Duyet_Admin.py", label="🛡️ Kiểm Duyệt Admin", icon="🔒")
+        st.page_link("pages/7_San_Dau.py", label="⚔️ Vào Sàn Đấu Toán Học", icon="🔥")
         st.markdown("---")
         if st.button("🚪 Đăng xuất", use_container_width=True):
             st.session_state["logged_in"] = False
