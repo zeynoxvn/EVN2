@@ -7,7 +7,7 @@ st.page_link("app.py", label="🏠 Quay lại Trang chủ", icon="⬅️")
 st.markdown("---")
 
 # --- ĐIỀN LINK API CỦA FEN VÀO ĐÂY ---
-API_URL = "LINK_WEB_APP_APPS_SCRIPT_CUA_FEN" 
+API_URL = "https://script.google.com/macros/s/AKfycbzV0KqHng6Edeb8LupXLSY84M_v4VnenGHenVWj_d7pvzVlsq2KWwh7dN-xwOSP33oh/exec" 
 THOI_GIAN_THI = 60 # Ví dụ: 60 giây cho 5 câu
 
 if "logged_in" not in st.session_state or not st.session_state.logged_in:
