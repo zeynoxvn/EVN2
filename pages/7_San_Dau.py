@@ -1,32 +1,19 @@
 import streamlit as st
 import streamlit as st
-import requests
-
-st.set_page_config(page_title="Sàn Đấu Toán Học", page_icon="⚔️")
-
 # ==========================================
 # KHÓA CỬA SÀN ĐẤU - BẮT BUỘC ĐĂNG NHẬP
 # ==========================================
-# Lưu ý: "logged_in" là tên biến ví dụ. Bro cần xem lại bên file Đăng nhập 
-# của bro đang dùng biến nào để lưu trạng thái đăng nhập (vd: "username", "user_id"...)
-# thì thay chữ "logged_in" bằng chữ đó nhé.
-
 if "logged_in" not in st.session_state or not st.session_state.logged_in:
     st.warning("⚠️ Khu vực hạn chế: Bạn chưa báo danh!")
-    st.info("👈 Vui lòng chọn trang **Đăng Nhập** ở thanh menu bên trái để ghi danh trước khi bước lên sàn đấu nhé.")
-    st.stop() # Lệnh này cực kỳ quan trọng: Lập tức dừng chạy toàn bộ đoạn code phía dưới!
-
-# ==========================================
-# NẾU ĐÃ ĐĂNG NHẬP THÌ CHẠY TIẾP CODE BÊN DƯỚI
-# ==========================================
-
-# --- ĐIỀN LINK API CỦA BRO VÀO ĐÂY ---
-API_URL = "https://script.google.com/macros/s/AKfycbzV0KqHng6Edeb8LupXLSY84M_v4VnenGHenVWj_d7pvzVlsq2KWwh7dN-xwOSP33oh/exec" 
-
-st.title("⚔️ Sàn Đấu Toán Học")
-st.markdown("Chào mừng các cao thủ đến với đấu trường trí tuệ!")
-
-# ... (Giữ nguyên toàn bộ phần code còn lại của bro từ đoạn này trở xuống) ...
+    st.info("Vui lòng quay lại trang Đăng Nhập để ghi danh trước khi bước lên sàn đấu nhé.")
+    
+    # --- THÊM NÚT QUAY LẠI TẠI ĐÂY ---
+    # Lưu ý: Thay "app.py" bằng tên file trang đăng nhập của fen. 
+    # Ví dụ nếu trang đăng nhập là "1_Dang_Nhap.py" nằm trong thư mục pages 
+    # thì sửa thành: st.page_link("pages/1_Dang_Nhap.py", ...)
+    st.page_link("app.py", label="🔑 Đi đến trang Đăng Nhập ngay", icon="🏠")
+    
+    st.stop() # Lệnh dừng chạy code
 import requests
 
 st.set_page_config(page_title="Sàn Đấu Toán Học", page_icon="⚔️")
