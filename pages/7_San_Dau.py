@@ -8,7 +8,7 @@ st.markdown("---")
 
 # --- ĐIỀN LINK API CỦA FEN VÀO ĐÂY ---
 API_URL = "https://script.google.com/macros/s/AKfycbzV0KqHng6Edeb8LupXLSY84M_v4VnenGHenVWj_d7pvzVlsq2KWwh7dN-xwOSP33oh/exec" 
-THOI_GIAN_THI = 60 # Ví dụ: 60 giây cho 5 câu
+THOI_GIAN_THI = 60 # 60 giây cho một lượt thi
 
 if "logged_in" not in st.session_state or not st.session_state.logged_in:
     st.warning("⚠️ Khu vực hạn chế: Bạn chưa báo danh!")
@@ -39,8 +39,8 @@ def fetch_questions():
                 st.session_state.questions = response["data"]
                 st.session_state.current_q = 0
                 st.session_state.score = 0
+                st.session_state.start_time = time.time() # Chốt giờ xuất phát
                 st.session_state.is_playing = True
-                st.session_state.start_time = time.time() # Bắt đầu tính giờ
                 st.rerun() 
             else:
                 st.error(f"Lỗi từ máy chủ: {response.get('message')}")
@@ -48,11 +48,17 @@ def fetch_questions():
             st.error(f"Lỗi kết nối API: {e}")
 
 def check_answer(selected_option, correct_answer):
-    if selected_option == correct_answer:
-        st.session_state.score += 10
-        st.toast("Chính xác! +10 điểm 🎉", icon="✅")
+    # Kiểm tra xem lúc bấm nộp bài đã lố giờ chưa
+    time_elapsed = time.time() - st.session_state.start_time
+    if time_elapsed > THOI_GIAN_THI:
+        st.warning("⏰ Ối! Bạn đã trả lời sau khi hết thời gian, câu này không được tính điểm nha!")
     else:
-        st.toast(f"Sai rồi! Đáp án đúng là {correct_answer} ❌", icon="🚨")
+        if selected_option == correct_answer:
+            st.session_state.score += 10
+            st.toast("Chính xác! +10 điểm 🎉", icon="✅")
+        else:
+            st.toast(f"Sai rồi! Đáp án đúng là {correct_answer} ❌", icon="🚨")
+            
     st.session_state.current_q += 1
 
 # === GIAO DIỆN THI ĐẤU ===
@@ -68,9 +74,9 @@ else:
     # KHI HẾT GIỜ HOẶC HẾT CÂU HỎI
     if time_left == 0 or st.session_state.current_q >= len(st.session_state.questions):
         st.session_state.is_playing = False
-        st.success("Tích tắc tích tắc... Trận đấu kết thúc! 🏁")
+        st.success("🏁 Trận đấu kết thúc!")
         if time_left == 0:
-            st.error("⏰ Hết thời gian!")
+            st.error("⏰ Hết thời gian thi đấu!")
         
         st.balloons()
         st.markdown(f"""
@@ -81,8 +87,7 @@ else:
         """, unsafe_allow_html=True)
         if st.button("🔄 Chơi lại ván khác", use_container_width=True):
             fetch_questions()
-            st.rerun()
-            
+    
     # KHI ĐANG TRONG TRẬN ĐẤU
     else:
         q = st.session_state.questions[st.session_state.current_q]
@@ -93,19 +98,16 @@ else:
         col2.metric("Điểm hiện tại", f"{st.session_state.score} 🏆")
         col3.metric("⏳ Thời gian còn", f"{time_left} s")
         
-        # Thanh tiến độ thời gian (trượt dần về 0)
+        # Thanh tiến độ thời gian
         progress_val = time_left / THOI_GIAN_THI
         st.progress(progress_val)
         
-        # Tự động refresh lại trang mỗi giây để đồng hồ chạy
-        time.sleep(1)
-        st.rerun() 
-        
-        # NỘI DUNG CÂU HỎI
+        # NỘI DUNG CÂU HỎI (Đã gỡ bỏ tác nhân gây tàng hình)
         st.subheader(f"❓ {q['question']}")
         st.caption(f"Độ khó: {q['level']}")
         st.write("") 
         
+        # CÁC NÚT ĐÁP ÁN
         opt_col1, opt_col2 = st.columns(2)
         with opt_col1:
             if st.button(f"A. {q['opt_a']}", use_container_width=True):
