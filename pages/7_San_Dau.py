@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 import time
-import streamlit.components.v1 as components # Thư viện gắn đồng hồ xịn
+import streamlit.components.v1 as components 
 
 st.set_page_config(page_title="Sàn Đấu Toán Học", page_icon="⚔️")
 st.page_link("app.py", label="🏠 Quay lại Trang chủ", icon="⬅️")
@@ -9,7 +9,7 @@ st.markdown("---")
 
 # --- ĐIỀN LINK API CỦA BRO VÀO ĐÂY ---
 API_URL = "https://script.google.com/macros/s/AKfycbzV0KqHng6Edeb8LupXLSY84M_v4VnenGHenVWj_d7pvzVlsq2KWwh7dN-xwOSP33oh/exec" 
-THOI_GIAN_THI = 60 
+THOI_GIAN_THI = 30 # Đã chỉnh xuống 30 giây
 
 # KHÓA CỬA SÀN ĐẤU
 if "logged_in" not in st.session_state or not st.session_state.logged_in:
@@ -137,7 +137,7 @@ else:
         col1.metric("Tiến độ", f"Câu {st.session_state.current_q + 1} / {len(st.session_state.questions)}")
         col2.metric("Điểm hiện tại", f"{st.session_state.score} 🏆")
         
-        # 👇 ĐỒNG HỒ ĐẾM NGƯỢC XỊN XÒ (Không lag) 👇
+        # ĐỒNG HỒ ĐẾM NGƯỢC XỊN XÒ CÓ TỰ ĐỘNG BẤM NÚT
         with col3:
             clock_html = f"""
             <div style="font-family: sans-serif; font-size: 1.5rem; text-align: center; margin-top: 10px;">
@@ -149,6 +149,13 @@ else:
                 var timerId = setInterval(function() {{
                     if (timeLeft <= 0) {{
                         clearTimeout(timerId);
+                        var buttons = window.parent.document.querySelectorAll('button');
+                        for (var i = 0; i < buttons.length; i++) {{
+                            if (buttons[i].innerText.includes('HẾT GIỜ')) {{
+                                buttons[i].click();
+                                break;
+                            }}
+                        }}
                     }} else {{
                         timeLeft--;
                         elem.innerHTML = timeLeft;
@@ -179,3 +186,7 @@ else:
             if st.button(f"D. {q['opt_d']}", use_container_width=True):
                 check_answer("D", q['answer'])
                 st.rerun()
+
+        st.write("---")
+        if st.button("⏳ HẾT GIỜ - TỔNG KẾT ĐIỂM", use_container_width=True):
+            st.rerun()
