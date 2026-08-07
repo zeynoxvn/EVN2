@@ -84,7 +84,7 @@ st.subheader("✍️ Đăng bài thảo luận mới")
 
 col1, col2 = st.columns(2)
 with col1:
-    mon_hoc = st.selectbox("📚 Chọn môn học:", ["Toán học", "Ngữ văn", "Tiếng Anh", "Lịch sử", "Địa lý"])
+    mon_hoc = st.selectbox("📚 Chọn môn học:", DANH_SACH_MON)
 with col2:
     # Ô nhập nội dung
     noidung_thao_luan = st.text_area("📝 Nội dung thảo luận:", placeholder="Nhập câu hỏi hoặc ý kiến của bạn...")
