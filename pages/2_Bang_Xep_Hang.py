@@ -4,6 +4,14 @@ import pandas as pd
 
 st.set_page_config(page_title="Bảng Xếp Hạng", page_icon="🏆")
 
+# ==========================================
+# KHÓA CỬA BẢNG XẾP HẠNG
+# ==========================================
+if "logged_in" not in st.session_state or not st.session_state.logged_in:
+    st.warning("⚠️ Khu vực hạn chế: Bạn chưa báo danh!")
+    st.info("Vui lòng quay lại trang Đăng Nhập để xem Bảng Vàng nhé.")
+    st.stop()
+
 # --- ĐIỀN LINK API CỦA BRO VÀO ĐÂY ---
 API_URL = "https://script.google.com/macros/s/AKfycbzV0KqHng6Edeb8LupXLSY84M_v4VnenGHenVWj_d7pvzVlsq2KWwh7dN-xwOSP33oh/exec" 
 
@@ -11,7 +19,7 @@ st.title("🏆 BẢNG VÀNG VINH DANH")
 st.markdown("Nơi tụ hội của những cao thủ Toán học đỉnh nhất trường!")
 st.markdown("---")
 
-# Hàm xét hạng Rank (Giống hệt bên Sàn Đấu)
+# Hàm xét hạng Rank 
 def get_rank_info(score):
     if score <= 100:
         return "Tân binh", "🥉"
