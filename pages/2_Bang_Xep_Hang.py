@@ -3,7 +3,8 @@ import requests
 import pandas as pd
 
 st.set_page_config(page_title="Bảng Xếp Hạng", page_icon="🏆")
-
+st.page_link("app.py", label="🏠 Quay lại Trang chủ", icon="⬅️")
+st.markdown("---")
 # ==========================================
 # KHÓA CỬA BẢNG XẾP HẠNG
 # ==========================================
